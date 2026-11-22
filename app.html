@@ -1,0 +1,1360 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ManuFlow. Личный кабинет</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap&subset=cyrillic,latin" rel="stylesheet">
+<style>
+/* OD-LAYOUT-PRIMITIVES v1 — structure only: display, flex/grid, overflow, wrapping, ratio, geometry.
+   Put this @layer first; product CSS outside the layer wins ordinary layout rules.
+   Native hidden and closed-dialog states take precedence over component display rules. */
+@layer od-layout {
+  [hidden]:not([hidden="until-found" i]) { display: none !important; }
+  dialog:not([open]) { display: none !important; }
+  :where(.od-stack,.od-row,.od-row-top,.od-cluster,.od-grid,.od-field,.od-stat,.od-cell,.od-tile) > :where(*) { min-width: 0; }
+  .od-stack   { display: flex; flex-direction: column; gap: var(--od-gap, 8px); }
+  .od-row     { display: flex; align-items: center; gap: var(--od-gap, 8px); }
+  .od-row-top { display: flex; align-items: flex-start; gap: var(--od-gap, 8px); }
+  .od-cluster { display: flex; flex-wrap: wrap; align-items: center; gap: var(--od-gap, 8px); }
+  .od-fill    { flex: 1 1 0; min-width: 0; }
+  .od-fixed   { flex: none; }
+  .od-grid    { display: grid; gap: var(--od-gap, 12px); grid-template-columns: repeat(var(--od-cols, 3), minmax(0, 1fr)); }
+  .od-stat, .od-field, .od-cell { display: grid; gap: var(--od-gap, 2px); }
+  :where(.od-stat,.od-field,.od-cell) > :where(*) { display: block; }
+  .od-tile { display: grid; grid-template-rows: auto 1fr; }
+  :where(.od-tile) > :where(*) { display: block; }
+  .od-media { display: block; width: 100%; height: auto; aspect-ratio: var(--od-ratio, auto); }
+  .od-media-cover { object-fit: cover; }
+  .od-icon { display: inline-block; inline-size: var(--od-icon-size, 1em); block-size: var(--od-icon-size, 1em); flex: none; }
+  .od-truncate { display: block; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .od-clamp-2, .od-clamp-3 { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  .od-clamp-2 { -webkit-line-clamp: 2; }
+  .od-clamp-3 { -webkit-line-clamp: 3; }
+  .od-lines-2 { min-height: calc(2 * 1.4em); }
+  .od-nowrap  { white-space: nowrap; }
+  .od-keep    { word-break: keep-all; overflow-wrap: anywhere; }
+  .od-screen { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; }
+  .od-scroll { overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
+  .od-rail { display: flex; gap: var(--od-gap, 8px); overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none;
+             padding-inline: var(--od-rail-pad, 16px); scroll-padding-inline: var(--od-rail-pad, 16px); }
+  .od-rail::-webkit-scrollbar { display: none; }
+  :where(.od-rail) > :where(*) { flex: none; scroll-snap-align: start; }
+  :where(.od-rail) > :where(:last-child) { margin-inline-end: var(--od-rail-pad, 16px); }
+  .od-spacer { flex: none; visibility: hidden; pointer-events: none; }
+  .od-touch  { min-width: 44px; min-height: 44px; }
+}
+:root [hidden]:where(:not([hidden="until-found" i])) { display: none; }
+/* /OD-LAYOUT-PRIMITIVES v1 */
+
+/* tokens: identical to index.html */
+:root{
+  --bg:#ffffff; --ink:#111111; --ink-2:#444444; --ink-3:#666666;
+  --line:#e3e3e3; --line-2:#d0d0d0; --surface:#f4f4f4; --hover:#fafafa;
+  --accent:#1a4be0; --accent-hover:#153db8; --accent-tint:#e7edfc; --accent-tint-2:#d6e0fb; --on-accent:#ffffff;
+  --danger:#b3261e;
+  --r-s:8px; --r-m:12px;
+  --sans:"Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"Geist Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --t-fast:160ms; --t-mid:240ms; --ease-out:cubic-bezier(.16,1,.3,1);
+  --bar:64px; --side:248px; --tab:64px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,p,ul,ol,dl,dd,figure,fieldset,blockquote{margin:0}
+fieldset{border:0;padding:0;min-width:0}
+ul,ol{padding:0;list-style:none}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+h1:focus{outline:none}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:16px;top:-60px;background:var(--ink);color:#fff;padding:8px 16px;border-radius:var(--r-s);z-index:40}
+.skip:focus{top:12px}
+.mono,.code{font-family:var(--mono);font-size:13px;letter-spacing:0}
+.code{font-weight:500;white-space:nowrap}
+.muted{color:var(--ink-3)}
+h1{font-weight:500;font-size:30px;line-height:1.15;letter-spacing:-0.025em}
+h2{font-weight:500;font-size:20px;line-height:1.3;letter-spacing:-0.015em}
+h3{font-weight:500;font-size:16px;line-height:1.35}
+.sub{color:var(--ink-2);font-size:15px;margin-top:6px;max-width:68ch}
+.label{display:block;font:500 12px/1.3 var(--mono);color:var(--ink-3)}
+
+/* buttons (index.html) */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:var(--r-s);border:1px solid transparent;font-size:15px;font-weight:500;line-height:1;white-space:nowrap;text-decoration:none;transition:transform var(--t-fast) var(--ease-out),background-color var(--t-fast),border-color var(--t-fast),color var(--t-fast)}
+.btn:hover{text-decoration:none}
+.btn:active{transform:scale(.98)}
+.btn .od-icon{--od-icon-size:18px}
+.btn--primary{background:var(--accent);color:var(--on-accent)}
+.btn--primary:hover{background:var(--accent-hover);color:var(--on-accent)}
+.btn--ghost{background:var(--bg);color:var(--ink);border-color:var(--line-2)}
+.btn--ghost:hover{border-color:var(--ink);color:var(--ink)}
+.btn--sm{min-height:36px;padding:0 14px;font-size:14px}
+.btn--sm .od-icon{--od-icon-size:16px}
+.btn[disabled]{background:var(--surface);color:var(--ink-3);border-color:var(--line);cursor:not-allowed;transform:none}
+@media (hover:hover){
+  .btn:not([disabled]):hover{transform:translateY(-2px)}
+  .btn:not([disabled]):active{transform:translateY(0) scale(.98)}
+}
+.icon-btn{position:relative;display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:var(--r-s);background:none;color:var(--ink-2);transition:background-color var(--t-fast),color var(--t-fast)}
+.icon-btn:hover{background:var(--surface);color:var(--ink)}
+.icon-btn .od-icon{--od-icon-size:20px}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);font-weight:500;text-align:left}
+.linkbtn:hover{text-decoration:underline;text-underline-offset:3px}
+.back{display:inline-flex;align-items:center;gap:6px;min-height:36px;margin-bottom:8px;padding:0;background:none;border:0;color:var(--ink-2);font-size:14px}
+.back:hover{color:var(--ink)}
+.back .od-icon{--od-icon-size:16px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:26px;padding:0 10px;border-radius:6px;border:1px solid var(--line);background:var(--surface);font-size:13px;line-height:1.2;white-space:nowrap;color:var(--ink)}
+.chip .od-icon{--od-icon-size:12px}
+.chip--on{border-color:var(--accent);color:var(--accent);background:var(--accent-tint)}
+.chip--attn{background:var(--bg);border:1.5px solid var(--ink);font-weight:500}
+.chip--ok{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip--ink{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip--plain{background:var(--bg)}
+
+/* status marks */
+.st{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;flex:none;border:1px solid var(--line-2);background:var(--bg);color:transparent}
+.st .od-icon{--od-icon-size:12px}
+.st--ok{background:var(--accent);border-color:var(--accent);color:#fff}
+.st--fix{border:1.5px solid var(--ink);color:var(--ink)}
+
+/* top bar */
+.bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:24px;height:var(--bar);padding:0 24px;background:var(--bg);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px;color:var(--ink);text-decoration:none;flex:none}
+.brand:hover{text-decoration:none}
+.brand__mark{display:grid;place-items:center;width:32px;height:32px;border-radius:var(--r-s);background:var(--accent);color:#fff;font:600 16px/1 var(--sans)}
+.brand__text{display:grid;line-height:1.15}
+.brand__name{display:block;font-weight:600;font-size:17px;letter-spacing:-0.02em}
+.brand__sub{display:block;font:400 12px/1.2 var(--mono);color:var(--ink-3)}
+.roleswitch{display:flex;align-items:center;gap:12px;margin-left:24px}
+.segtabs{display:inline-flex;padding:4px;gap:4px;background:var(--surface);border-radius:10px}
+.segtabs button{min-height:36px;padding:0 14px;border:0;border-radius:var(--r-s);background:none;font-size:14px;font-weight:500;color:var(--ink-2);transition:background-color var(--t-fast),color var(--t-fast)}
+.segtabs button:hover{color:var(--ink)}
+.segtabs button[aria-checked="true"]{background:var(--bg);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.role-select{display:none;height:40px;padding:0 10px;border:1px solid var(--line-2);border-radius:var(--r-s);background:var(--bg);font-size:14px}
+.bar__right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.badge{position:absolute;top:6px;right:6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:#fff;font:600 11px/18px var(--sans);text-align:center}
+.avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--ink);color:#fff;font:500 13px/1 var(--sans);flex:none}
+.notif{position:relative}
+.notif__panel{position:absolute;right:0;top:52px;width:380px;max-width:calc(100vw - 32px);background:var(--bg);border:1px solid var(--line);border-radius:var(--r-m);box-shadow:0 12px 32px rgba(17,17,17,.08);overflow:hidden;animation:popIn 200ms var(--ease-out)}
+@keyframes popIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.notif__head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.notif__list{max-height:420px;overflow:auto}
+.note{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;width:100%;padding:14px 16px;border:0;border-bottom:1px solid var(--line);background:var(--bg);text-align:left;font-size:14px;line-height:1.45}
+.note:last-child{border-bottom:0}
+.note:hover{background:var(--hover)}
+.note__t{display:block;color:var(--ink-2)}
+.note--new .note__t{color:var(--ink);font-weight:500}
+.note__d{display:block;grid-column:1;font:12px/1.3 var(--mono);color:var(--ink-3)}
+.note__new{grid-row:1;grid-column:2;align-self:start;font:500 11px/1.4 var(--mono);color:var(--accent)}
+.notif__empty{padding:32px 16px;text-align:center;color:var(--ink-3);font-size:14px}
+
+/* shell */
+.shell{display:grid;grid-template-columns:var(--side) minmax(0,1fr);min-height:calc(100dvh - var(--bar))}
+.side{position:sticky;top:var(--bar);align-self:start;height:calc(100dvh - var(--bar));display:flex;flex-direction:column;gap:4px;padding:20px 12px;border-right:1px solid var(--line)}
+.side__label{padding:0 12px 8px}
+.nav-i{display:flex;align-items:center;gap:12px;width:100%;min-height:40px;padding:0 12px;border:0;border-radius:var(--r-s);background:none;color:var(--ink-2);font-size:15px;text-align:left;transition:background-color var(--t-fast),color var(--t-fast)}
+.nav-i:hover{background:var(--hover);color:var(--ink)}
+.nav-i .od-icon{--od-icon-size:18px}
+.nav-i[aria-current="page"]{background:var(--surface);color:var(--ink);font-weight:500}
+.nav-i[aria-current="page"] .od-icon{color:var(--accent)}
+.nav-i__n{margin-left:auto;font:500 12px/1 var(--mono);color:var(--ink-3)}
+.side__foot{margin-top:auto;padding:12px;border-top:1px solid var(--line);display:grid;gap:2px;font-size:14px}
+.side__foot b{font-weight:500;display:block}
+.side__foot span{display:block;color:var(--ink-3);font-size:13px}
+.main{min-width:0;padding:32px 40px 72px}
+.page{max-width:1180px}
+.page.enter{animation:pageIn 220ms var(--ease-out)}
+@keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:24px}
+
+/* tab bar (mobile) */
+.tabbar{display:none}
+
+/* cards / panels */
+.win{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-m);min-width:0}
+.win__head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.win__body{padding:20px}
+.panel{background:var(--surface);border-radius:var(--r-s);padding:16px}
+.notice{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:var(--r-s);background:var(--surface);font-size:14px;color:var(--ink-2);line-height:1.5}
+.notice .od-icon{--od-icon-size:18px;color:var(--accent);margin-top:1px}
+.notice b{color:var(--ink);font-weight:500}
+.stack{display:grid;gap:24px}
+.stack-s{display:grid;gap:12px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.fchip{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 12px;border:1px solid var(--line-2);border-radius:var(--r-s);background:var(--bg);font-size:14px;white-space:nowrap;transition:border-color var(--t-fast),background-color var(--t-fast),color var(--t-fast)}
+.fchip:hover{border-color:var(--ink)}
+.fchip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.fchip__n{font:500 12px/1 var(--mono);opacity:.75}
+
+/* tables */
+.tbl-wrap{border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--line);text-align:left;font:500 12px/1.3 var(--mono);color:var(--ink-3);white-space:nowrap}
+.tbl td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl tbody tr{transition:background-color var(--t-fast)}
+@media (hover:hover){.tbl tbody tr:hover{background:var(--hover)}}
+.tbl .num{text-align:right;white-space:nowrap}
+.tbl tfoot td{padding:14px 16px;border-top:1px solid var(--line);font-weight:500;background:var(--surface)}
+.tlink{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-width:420px;padding:0;border:0;background:none;color:var(--ink);font-weight:500;text-align:left;line-height:1.4}
+.tlink:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+
+/* empty */
+.empty{display:grid;justify-items:center;gap:12px;padding:56px 24px;border:1px dashed var(--line-2);border-radius:var(--r-m);text-align:center}
+.empty .od-icon{--od-icon-size:28px;color:var(--ink-3)}
+.empty h2{font-size:18px}
+.empty p{color:var(--ink-2);font-size:15px;max-width:46ch}
+
+/* fields */
+.field{display:grid;gap:8px;min-width:0}
+.field > label,.field .lbl{font-size:14px;font-weight:500}
+.req{color:var(--accent)}
+.lbl-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.inp,.field input[type=text],.field input[type=email],.field input[type=tel],.field input[type=search],.field select,.field textarea{width:100%;min-height:44px;padding:0 12px;border:1px solid var(--line-2);border-radius:var(--r-s);background:var(--bg);font-size:15px}
+.field textarea{padding:10px 12px;line-height:1.55;resize:vertical;min-height:96px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.help{font-size:13px;color:var(--ink-3);line-height:1.45}
+.err{font-size:13px;color:var(--danger);line-height:1.45}
+.warn{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--ink);font-weight:500}
+.warn .od-icon{--od-icon-size:16px;margin-top:1px}
+.field.bad input,.field.bad textarea,.field.bad select{border-color:var(--danger)}
+.counter{font:500 12px/1.3 var(--mono);color:var(--ink-3);white-space:nowrap}
+.counter.ok{color:var(--accent)}
+.counter.bad{color:var(--ink)}
+.errsum{padding:14px 16px;border:1.5px solid var(--danger);border-radius:var(--r-s);font-size:14px}
+.errsum h2{font-size:15px;margin-bottom:6px}
+.errsum ul{display:grid;gap:4px}
+.errsum button{background:none;border:0;padding:0;color:var(--danger);text-decoration:underline;text-underline-offset:3px;text-align:left}
+
+/* wizard */
+.wsteps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:28px}
+.wstep{display:grid;gap:8px;width:100%;padding:0;border:0;background:none;text-align:left;color:var(--ink-3)}
+.wstep__bar{display:block;height:3px;border-radius:2px;background:var(--line)}
+.wstep__t{display:block;font-size:14px;font-weight:500}
+.wstep__n{display:block;font:12px/1.2 var(--mono)}
+.wstep.done{color:var(--ink-2)}
+.wstep.done .wstep__bar{background:var(--ink)}
+.wstep[aria-current="step"]{color:var(--ink)}
+.wstep[aria-current="step"] .wstep__bar{background:var(--accent)}
+.wstep[disabled]{cursor:default}
+.wfoot{display:flex;justify-content:space-between;gap:12px;margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+.types{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tcard{position:relative;display:grid;gap:6px;padding:18px;border:1px solid var(--line-2);border-radius:var(--r-m);cursor:pointer;transition:border-color var(--t-fast),transform var(--t-fast) var(--ease-out)}
+.tcard input{position:absolute;opacity:0;pointer-events:none}
+.tcard__t{display:block;font-weight:500}
+.tcard__d{display:block;font-size:14px;color:var(--ink-2);line-height:1.45}
+.tcard:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-tint)}
+.tcard:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+@media (hover:hover){.tcard:hover{transform:translateY(-2px);border-color:var(--ink)}}
+.ltabs{display:inline-flex;padding:4px;gap:4px;background:var(--surface);border-radius:10px;margin-bottom:20px}
+.ltab{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 14px;border:0;border-radius:var(--r-s);background:none;font-size:14px;font-weight:500;color:var(--ink-2)}
+.ltab[aria-selected="true"]{background:var(--bg);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.ltab .st{width:16px;height:16px}
+.ltab .st .od-icon{--od-icon-size:10px}
+.kw{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:48px;padding:7px 8px;border:1px solid var(--line-2);border-radius:var(--r-s)}
+.kw:focus-within{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.kw__chips{display:contents}
+.kwchip{display:inline-flex;align-items:center;gap:2px;min-height:30px;padding:0 2px 0 10px;border-radius:6px;background:var(--surface);font-size:14px}
+.kwchip button{display:grid;place-items:center;width:26px;height:26px;border:0;border-radius:4px;background:none;color:var(--ink-3)}
+.kwchip button:hover{background:var(--line);color:var(--ink)}
+.kwchip .od-icon{--od-icon-size:12px}
+.kw input{flex:1 1 160px;min-width:140px;height:32px;border:0;padding:0 4px;outline:none;font-size:15px;background:none}
+.udk-list{display:grid;gap:4px;max-height:320px;overflow:auto;margin-top:8px;padding:4px;border:1px solid var(--line);border-radius:var(--r-s)}
+.udk-opt{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:center;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:6px;background:none;text-align:left;font-size:14px}
+.udk-opt:hover,.udk-opt:focus-visible{background:var(--surface)}
+.udk-opt[aria-pressed="true"]{background:var(--accent-tint);color:var(--ink)}
+.drop{display:grid;justify-items:center;gap:8px;padding:40px 20px;border:1.5px dashed var(--line-2);border-radius:var(--r-m);text-align:center;color:var(--ink-2);cursor:pointer;transition:border-color var(--t-fast),background-color var(--t-fast)}
+.drop .od-icon{--od-icon-size:28px;color:var(--accent)}
+.drop b{color:var(--ink);font-weight:500}
+.drop u{color:var(--accent);text-underline-offset:3px}
+.drop.over,.drop:hover{border-color:var(--accent);background:var(--accent-tint)}
+#fileIn:focus-visible + .drop{outline:2px solid var(--accent);outline-offset:2px}
+.file{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:var(--r-s)}
+.file__ico{display:grid;place-items:center;width:40px;height:48px;border:1px solid var(--line-2);border-radius:4px;font:500 10px/1 var(--mono);color:var(--accent)}
+.file__name{display:block;font-weight:500;font-size:15px;overflow-wrap:anywhere}
+.file__meta{display:block;font:12px/1.4 var(--mono);color:var(--ink-3)}
+.sum-list{display:grid;border-top:1px solid var(--line)}
+.sum-list div{display:grid;grid-template-columns:140px minmax(0,1fr);gap:16px;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
+.sum-list dt{color:var(--ink-3)}
+.sk{display:block;height:14px;border-radius:4px;background:var(--surface);animation:skPulse 1.1s ease-in-out infinite alternate}
+@keyframes skPulse{from{opacity:1}to{opacity:.45}}
+.sk-row{display:grid;grid-template-columns:20px minmax(0,1fr) 80px;gap:16px;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.sk-row:last-child{border-bottom:0}
+.sk-dot{width:20px;height:20px;border-radius:50%}
+
+/* report */
+.rsum{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;margin-bottom:20px}
+.rsum__n{font-size:22px;font-weight:500;letter-spacing:-0.02em}
+.cells{display:flex;gap:4px}
+.cells i{display:block;width:16px;height:16px;border-radius:3px;border:1.5px solid var(--ink)}
+.cells i.ok{background:var(--accent);border-color:var(--accent)}
+.rule{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:8px 16px;align-items:start;padding:16px 20px;border-bottom:1px solid var(--line)}
+.rule:last-child{border-bottom:0}
+.rule .st{margin-top:2px}
+.rule__t{font-weight:500;font-size:15px}
+.rule__d{font:12px/1.5 var(--mono);color:var(--ink-3);text-align:right}
+.rule--fail .rule__d{color:var(--ink);font-weight:500}
+.rule__fix{grid-column:2 / -1;display:grid;gap:10px;padding:14px 16px;background:var(--surface);border-radius:var(--r-s);font-size:14px;color:var(--ink-2)}
+.rule__fix b{color:var(--ink);font-weight:500}
+.cmp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.cmp > div{display:grid;gap:6px;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px}
+.cmp s{text-decoration-color:var(--danger);text-decoration-thickness:1.5px}
+mark,.hl{background:var(--accent-tint);color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent);padding:0 2px;border-radius:2px}
+.oldlist{display:grid;gap:6px;padding-left:18px;list-style:disc}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));margin:8px 0 32px}
+.tl li{position:relative;display:grid;justify-items:center;gap:8px;text-align:center;font-size:13px;color:var(--ink-3);line-height:1.3;padding:0 4px}
+.tl li::before{content:"";position:absolute;top:11px;left:-50%;width:100%;height:2px;background:var(--line)}
+.tl li:first-child::before{display:none}
+.tl li.done::before,.tl li.cur::before{background:var(--accent)}
+.tl__n{position:relative;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1px solid var(--line-2);background:var(--bg);color:transparent}
+.tl__n .od-icon{--od-icon-size:12px}
+.tl li.done{color:var(--ink-2)}
+.tl li.done .tl__n{background:var(--accent);border-color:var(--accent);color:#fff}
+.tl li.cur{color:var(--ink);font-weight:500}
+.tl li.cur .tl__n{border:2px solid var(--accent);background:var(--accent-tint)}
+
+/* review */
+.rhead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;font-size:14px;color:var(--ink-2)}
+.ratings{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.ratings .od-stat{padding:14px;background:var(--surface);border-radius:var(--r-s)}
+.ratings .v{font-size:20px;font-weight:500;letter-spacing:-0.02em}
+.remark{display:grid;gap:10px;padding:16px;border:1px solid var(--line);border-radius:var(--r-s)}
+.remark__head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.remark__n{font-weight:500}
+.remark__sum{margin-left:auto;font:500 13px/1 var(--mono)}
+.remark blockquote{padding-left:12px;border-left:2px solid var(--line-2);font-size:14px;color:var(--ink-2)}
+.diff{display:grid;gap:6px;font-size:14px}
+.diff__row{display:grid;grid-template-columns:56px minmax(0,1fr);gap:8px}
+.diff__was{color:var(--ink-3)}
+.diff__was s{text-decoration-thickness:1px}
+.rev{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:24px;align-items:start}
+.ms{position:sticky;top:calc(var(--bar) + 24px);max-height:calc(100dvh - var(--bar) - 48px);overflow:auto;padding:28px 32px;border:1px solid var(--line);border-radius:var(--r-m);font-size:15px;line-height:1.75;color:var(--ink-2)}
+.ms h2{font-size:20px;color:var(--ink);margin-bottom:4px}
+.ms h3{color:var(--ink);margin:20px 0 6px}
+.ms__meta{margin-bottom:8px;color:var(--ink-3)}
+.ms__hint{display:flex;gap:8px;align-items:center;margin-bottom:12px;font-size:13px;color:var(--ink-3)}
+.ms__hint .od-icon{--od-icon-size:14px;color:var(--accent)}
+.ms__refs{list-style:decimal;padding-left:20px}
+.frag{display:inline;padding:0 2px;border:0;border-radius:2px;background:var(--accent-tint);box-shadow:inset 0 -2px 0 var(--accent);color:var(--ink);font:inherit;line-height:inherit;text-align:left;cursor:pointer;transition:background-color var(--t-fast)}
+.frag:hover{background:var(--accent-tint-2)}
+.frag[disabled]{cursor:default}
+.crit{display:grid;gap:10px;padding:16px 0;border-bottom:1px solid var(--line)}
+.crit:first-child{padding-top:0}
+.crit__top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.rate{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--r-s);overflow:hidden}
+.rate label{position:relative;cursor:pointer}
+.rate input{position:absolute;opacity:0;pointer-events:none}
+.rate span{display:grid;place-items:center;width:40px;height:36px;border-right:1px solid var(--line-2);font:500 14px/1 var(--mono);transition:background-color var(--t-fast),color var(--t-fast)}
+.rate label:last-child span{border-right:0}
+.rate label:hover span{background:var(--surface)}
+.rate input:checked + span{background:var(--ink);color:#fff}
+.rate input:focus-visible + span{outline:2px solid var(--accent);outline-offset:-2px}
+.crit textarea{min-height:64px}
+.dec{display:grid;gap:12px;padding:20px;border-top:1px solid var(--line)}
+
+/* toggle pair */
+.pair{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--r-s);overflow:hidden}
+.pair button{min-height:36px;padding:0 14px;border:0;border-right:1px solid var(--line-2);background:var(--bg);font-size:14px;font-weight:500;color:var(--ink-2);transition:background-color var(--t-fast),color var(--t-fast)}
+.pair button:last-child{border-right:0}
+.pair button:hover{background:var(--surface)}
+.pair button[aria-pressed="true"].yes{background:var(--accent);color:#fff}
+.pair button[aria-pressed="true"].no{background:var(--ink);color:#fff}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:24px}
+.stat{display:grid;gap:4px;padding:16px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--bg);text-align:left;transition:border-color var(--t-fast),transform var(--t-fast) var(--ease-out)}
+.stat__v{display:block;font-size:28px;font-weight:500;letter-spacing:-0.03em;line-height:1.1}
+.stat__t{display:block;font-size:13px;color:var(--ink-2)}
+button.stat:hover{border-color:var(--ink)}
+@media (hover:hover){button.stat:hover{transform:translateY(-2px)}}
+button.stat[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+button.stat[aria-pressed="true"] .stat__v{color:var(--accent)}
+
+/* charts */
+.chart{display:block;width:100%;height:auto}
+.chart .b-ink{fill:var(--ink)}
+.chart .b-acc{fill:var(--accent)}
+.chart .axis{stroke:var(--line-2)}
+.chart text{font-family:var(--mono);font-size:12px;fill:var(--ink-3)}
+.chart .val{fill:var(--ink);font-weight:500}
+.hb{display:grid;gap:12px}
+.hb__row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) 40px;gap:16px;align-items:center;font-size:14px}
+.hb__t{display:grid;gap:2px;min-width:0}
+.hb__t .code{font-size:12px;color:var(--ink-3)}
+.hb__name{display:block;line-height:1.35}
+.hb__bar i{display:block;height:10px;width:calc(var(--w) * 100%);border-radius:2px;background:var(--ink)}
+.hb__row:first-child .hb__bar i{background:var(--accent)}
+.hb__v{text-align:right;font-weight:500}
+
+/* picks (checkbox rows) */
+.pick{display:grid;grid-template-columns:24px minmax(0,1fr);gap:12px;padding:12px 8px;margin:0 -8px;border-radius:var(--r-s);cursor:pointer}
+.pick:hover{background:var(--surface)}
+.pick input{position:absolute;opacity:0;pointer-events:none}
+.pick__box{display:grid;place-items:center;width:20px;height:20px;margin-top:2px;border:1.5px solid var(--line-2);border-radius:5px;color:transparent;transition:background-color var(--t-fast),border-color var(--t-fast)}
+.pick__box .od-icon{--od-icon-size:12px}
+.pick input:checked + .pick__box{background:var(--accent);border-color:var(--accent);color:#fff}
+.pick input:focus-visible + .pick__box{outline:2px solid var(--accent);outline-offset:2px}
+.pick__name{display:block;font-weight:500;font-size:15px}
+.pick__meta{display:block;font:12px/1.5 var(--mono);color:var(--ink-3)}
+legend{font:500 12px/1.3 var(--mono);color:var(--ink-3);padding:0;margin-bottom:4px}
+
+/* dialog */
+.dlg{width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 32px);padding:0;border:1px solid var(--line);border-radius:var(--r-m);background:var(--bg);color:var(--ink);overflow:auto}
+.dlg[open]{animation:dlgIn 240ms var(--ease-out)}
+.dlg::backdrop{background:rgba(17,17,17,.36)}
+@keyframes dlgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.dlg__head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:20px 24px;border-bottom:1px solid var(--line)}
+.dlg__head .icon-btn{margin:-8px -12px -8px 0}
+.dlg__body{display:grid;gap:16px;padding:20px 24px}
+.dlg__foot{display:flex;justify-content:flex-end;gap:12px;padding:16px 24px 24px}
+
+/* toast */
+.toasts{position:fixed;right:24px;bottom:24px;z-index:50;display:grid;gap:8px;justify-items:end}
+.toast{display:flex;align-items:center;gap:10px;max-width:420px;padding:12px 16px;border-radius:var(--r-s);background:var(--ink);color:#fff;font-size:14px;line-height:1.4;box-shadow:0 8px 24px rgba(17,17,17,.16);animation:toastIn 240ms var(--ease-out)}
+.toast .od-icon{--od-icon-size:16px;color:#fff}
+.toast.out{opacity:0;transform:translateY(6px);transition:opacity 160ms ease-in,transform 160ms ease-in}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* responsive */
+@media (max-width:1180px){
+  :root{--side:216px}
+  .main{padding:28px 28px 64px}
+  .rev{grid-template-columns:1fr}
+  .ms{position:static;max-height:420px}
+}
+@media (max-width:960px){
+  .roleswitch .label{display:none}
+  .brand__sub{display:none}
+  .ratings,.stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid2{grid-template-columns:1fr}
+  .tl{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:16px}
+  .tl li:nth-child(5)::before{display:none}
+}
+@media (max-width:767px){
+  .bar{gap:12px;padding:0 16px}
+  .brand__text{display:none}
+  .roleswitch{margin-left:0}
+  .segtabs{display:none}
+  .role-select{display:block}
+  .avatar{display:none}
+  .shell{grid-template-columns:1fr}
+  .side{display:none}
+  .main{padding:20px 16px calc(var(--tab) + env(safe-area-inset-bottom) + 32px)}
+  h1{font-size:24px}
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);height:calc(var(--tab) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--bg);border-top:1px solid var(--line)}
+  .tab-i{position:relative;display:grid;justify-items:center;align-content:center;gap:4px;border:0;background:none;color:var(--ink-3);font-size:11px;font-weight:500;line-height:1.1}
+  .tab-i .od-icon{--od-icon-size:22px}
+  .tab-i[aria-current="page"]{color:var(--accent)}
+  .tab-i__n{position:absolute;top:6px;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--accent);color:#fff;font:600 10px/16px var(--sans)}
+  .toasts{left:16px;right:16px;bottom:calc(var(--tab) + env(safe-area-inset-bottom) + 12px);justify-items:stretch}
+  .toast{max-width:none}
+  .filters{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px 16px;padding:0 16px;scrollbar-width:none}
+  .filters::-webkit-scrollbar{display:none}
+  .tbl-wrap{border:0;border-radius:0;overflow:visible}
+  .tbl thead{display:none}
+  .tbl,.tbl tbody,.tbl tfoot,.tbl tr,.tbl td{display:block;width:100%}
+  .tbl tr{padding:14px 16px;margin-bottom:12px;border:1px solid var(--line);border-radius:var(--r-m)}
+  .tbl td{display:grid;grid-template-columns:104px minmax(0,1fr);gap:12px;padding:4px 0;border:0;text-align:left}
+  .tbl td::before{content:attr(data-label);font:12px/1.6 var(--mono);color:var(--ink-3)}
+  .tbl td.nolabel{grid-template-columns:1fr}
+  .tbl td.nolabel::before{display:none}
+  .tbl .num{text-align:left}
+  .tbl tfoot tr{background:var(--surface)}
+  .tbl tfoot td{border:0;background:none;padding:4px 0}
+  .tlink{max-width:none}
+  .types,.cmp{grid-template-columns:1fr}
+  .wsteps{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+  .wstep__t{display:none}
+  .wstep[aria-current="step"] .wstep__t{display:block}
+  .wstep{grid-column:auto}
+  .rule{grid-template-columns:20px minmax(0,1fr);padding:14px 16px}
+  .rule__d{grid-column:2;text-align:left}
+  .ms{padding:20px}
+  .hb__row{grid-template-columns:minmax(0,1fr) 40px}
+  .hb__t{grid-column:1 / -1}
+  .tl{grid-template-columns:1fr;gap:0}
+  .tl li{grid-template-columns:24px minmax(0,1fr);justify-items:start;align-items:center;gap:12px;padding:6px 0;text-align:left}
+  .tl li::before{display:none}
+  .sum-list div{grid-template-columns:110px minmax(0,1fr)}
+  .stat__v{font-size:24px}
+  .dlg__foot .btn{flex:1}
+  .wfoot .btn{flex:1}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:1ms !important;animation-iteration-count:1 !important;transition-duration:1ms !important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">К содержанию</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 16 16"><path d="M8 4v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="12" r="1.1" fill="currentColor"/></symbol>
+  <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <symbol id="i-files" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V20a.5.5 0 01-.5.5h-10.5a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 3.5V8h4M9.5 12.5h5M9.5 16h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 13l2.5-7.5h11L20 13v6a.5.5 0 01-.5.5h-15A.5.5 0 014 19zM4 13h4.5l1 2h5l1-2H20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M4.5 11a7.5 7.5 0 0112.8-4.3L19 8.5M19 4v4.5h-4.5M19.5 13a7.5 7.5 0 01-12.8 4.3L5 15.5M5 20v-4.5h4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3.5h12v17l-2.5-1.5-2 1.5-1.5-1.5-1.5 1.5-2-1.5L6 20.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 8h6M9 11.5h6M9 15h3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V4h10v5M7 17H5.5a1 1 0 01-1-1v-5a2 2 0 012-2h11a2 2 0 012 2v5a1 1 0 01-1 1H17M7 14h10v6H7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16M7 16.5v-5M12 16.5V7M17 16.5V10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0112 0v5l1.5 2h-15zM10 20.5a2 2 0 004 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 16V5m0 0l-4.5 4.5M12 5l4.5 4.5M5 19h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M19 12H5m0 0l5-5m-5 5l5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-msg" viewBox="0 0 24 24"><path d="M4 6.5A1.5 1.5 0 015.5 5h13A1.5 1.5 0 0120 6.5v9a1.5 1.5 0 01-1.5 1.5H9l-4 3v-3.5A1.5 1.5 0 014 15z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M15.5 15.5L20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  </g>
+</svg>
+
+<header class="bar">
+  <a class="brand" href="index.html" aria-label="ManuFlow, на главную страницу">
+    <span class="brand__mark" aria-hidden="true">Р</span>
+    <span class="brand__text"><span class="brand__name">ManuFlow</span><span class="brand__sub">личный кабинет</span></span>
+  </a>
+  <div class="roleswitch">
+    <span class="label" id="roleLbl">Роль (демо)</span>
+    <div class="segtabs" role="radiogroup" aria-labelledby="roleLbl" id="roleSeg"></div>
+    <select class="role-select" id="roleSel" aria-label="Роль (демо)">
+      <option value="author">Автор</option><option value="reviewer">Рецензент</option><option value="editor">Редактор</option>
+    </select>
+  </div>
+  <div class="bar__right">
+    <div class="notif">
+      <button class="icon-btn" type="button" id="bellBtn" data-act="bell" aria-expanded="false" aria-controls="notifPanel" aria-label="Уведомления"><svg class="od-icon" aria-hidden="true"><use href="#i-bell"/></svg><span class="badge" id="bellCount" hidden></span></button>
+      <div class="notif__panel" id="notifPanel" role="region" aria-label="Уведомления" hidden></div>
+    </div>
+    <span class="avatar" id="avatar" aria-hidden="true"></span>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="side" id="side" aria-label="Разделы кабинета"></nav>
+  <main class="main" id="main"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Разделы кабинета"></nav>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<dialog class="dlg" id="dlg" aria-labelledby="dlgTitle"></dialog>
+
+<script>
+(function(){
+'use strict';
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const TODAY = '2026-11-20';
+const RATE = 300;
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = d => d ? d.split('-').reverse().join('.') : '';
+const wc = t => (t || '').trim().split(/\s+/).filter(Boolean).length;
+const icon = (n, size) => `<svg class="od-icon" aria-hidden="true"${size ? ` style="--od-icon-size:${size}px"` : ''}><use href="#i-${n}"/></svg>`;
+function plural(n, one, few, many){ const a = n % 10, b = n % 100; if (a === 1 && b !== 11) return one; if (a >= 2 && a <= 4 && (b < 10 || b >= 20)) return few; return many; }
+const som = n => `${n.toLocaleString('ru-RU')} сом`;
+const daysTo = d => Math.round((Date.parse(d) - Date.parse(TODAY)) / 864e5);
+
+const L = { ru:'RU', kg:'KG', en:'EN' };
+const LANG_PREP = { ru:'русском', kg:'кыргызском', en:'английском' };
+const LANGS = ['ru','kg','en'];
+const ST = { draft:'Черновик', fix:'Нужны исправления', review:'На рецензии', remarks:'Замечания получены', recheck:'Повторная проверка', approved:'Одобрена', doi:'DOI присвоен', print:'В печати' };
+const ST_CLS = { draft:'', fix:'chip--attn', review:'chip--on', remarks:'chip--attn', recheck:'chip--on', approved:'chip--ok', doi:'chip--ok', print:'chip--ink' };
+const STAGES = ['Загрузка','Автопроверка','Рецензия','Исправления','Повторная проверка','Одобрена','DOI','Печать'];
+const STAGE_OF = { draft:0, fix:1, review:2, remarks:3, recheck:4, approved:5, doi:6, print:7 };
+const CRIT = [ {k:'akt', t:'Актуальность'}, {k:'nov', t:'Научная новизна'}, {k:'met', t:'Методология'}, {k:'gost', t:'Оформление по ГОСТ'} ];
+const UDK = [
+  {code:'004.6', name:'Данные, хранение и обработка'},
+  {code:'004.7', name:'Компьютерные сети'},
+  {code:'004.8', name:'Искусственный интеллект'},
+  {code:'004.9', name:'Прикладные информационные технологии'},
+  {code:'37.0', name:'Общие вопросы образования'},
+  {code:'330.4', name:'Математические методы в экономике'},
+  {code:'519.2', name:'Теория вероятностей и математическая статистика'},
+  {code:'551.4', name:'Геоморфология'},
+  {code:'631.5', name:'Агротехника'},
+  {code:'811.512.154', name:'Кыргызский язык'}
+];
+const udkName = c => (UDK.find(u => u.code === c) || {}).name || '';
+const GOST_ERR = [
+  { wrong:'Курманбаев Т.М., Цариков И.', right:'Курманбаев, Т. М., Цариков, И.' },
+  { wrong:'Асанова Г.К.', right:'Асанова, Г. К.' }
+];
+const OLD_SRC = [
+  'Сейтказиева, А. М. Информационные системы вуза // Вестник университета. 2017. № 2. С. 31–38.',
+  'Brown, J. Text mining in editorial workflows // Journal of Informetrics. 2019. Vol. 13. P. 45–60.'
+];
+const okCheck = (code, udk) => ({ abs:{ru:312,kg:268,en:286}, kw:{ru:7,kg:6,en:7}, titleOk:true, refs:14, gost:[], old:[], udk, sections:[], code });
+
+const R = {
+  r1:{ name:'Осмонов Бакыт Кубанычбекович', short:'Осмонов Б. К.', udk:['004.8','004.7'] },
+  r2:{ name:'Сыдыкова Жылдыз Токтосуновна', short:'Сыдыкова Ж. Т.', udk:['004.8','004.9'] },
+  r3:{ name:'Ли Виктор Андреевич', short:'Ли В. А.', udk:['004.9','004.6'] },
+  r4:{ name:'Бекмуратов Талант Садырович', short:'Бекмуратов Т. С.', udk:['519.2','004.8'] },
+  r5:{ name:'Абдраимова Гульнара Эрмековна', short:'Абдраимова Г. Э.', udk:['631.5','330.4'] }
+};
+const ME_R = 'r1';
+
+/* ---------- demo state ---------- */
+const S = {
+  role:'author',
+  view:{ author:'works', reviewer:'inbox', editor:'panel' },
+  id:{ author:null, reviewer:null, editor:null },
+  filter:'all', rfilter:'all', efilter:'all',
+  seq:163,
+  drafts:{}, revErrs:[], respErr:new Set(),
+  invSel:new Set(),
+  assign:null,
+  wiz:null,
+  profile:{ fio:'Курманбаев Тимур Маратович', degree:'Кандидат технических наук', org:'Кафедра информационных технологий', email:'t.kurmanbaev@university.kg', phone:'+996 555 123 456', langs:['ru','kg','en'] },
+  profErr:{},
+  rprofile:{ bank:'ОАО «Банк» (пример)', bik:'109018', account:'1090000123456789', inn:'21204198700123' },
+  rprofErr:{},
+  works:[
+    { id:'ЖН-2026-0147', mine:true, author:'Курманбаев Т. М.', title:'Методы автоматической проверки структуры научных текстов', type:'Статья', udk:'004.8', version:3, status:'remarks', updated:'2026-11-19', deadline:'2026-12-04', reviewers:['r1','r2'], check:okCheck('ЖН-2026-0147','004.8'),
+      review:{ by:'r1', date:'2026-11-19', ratings:{akt:4,nov:3,met:3,gost:2},
+        comments:{ akt:'Тема важна для редакций вузовских журналов.', nov:'Новизна описана в общих словах, нужно сравнение с существующими системами.', met:'Не указан объём выборки и способ её формирования.', gost:'Две записи в списке литературы оформлены не по ГОСТ.' },
+        remarks:[
+          { n:1, text:'В разделе 2 не указан объём выборки и период, за который собраны рукописи.', quote:'Выборка сформирована из рукописей, поступивших в редакцию.', sum:RATE, resp:'', fixed:null },
+          { n:2, text:'На рисунке 3 нет подписей осей и единиц измерения.', quote:'Рисунок 3. Распределение ошибок оформления', sum:RATE, resp:'', fixed:null },
+          { n:3, text:'Источник 7 старше пяти лет, замените его на публикацию 2021 года или новее.', quote:'Иванов П. С. Анализ структуры текстов // Вестник. 2017.', sum:RATE, resp:'', fixed:null }
+        ] } },
+    { id:'ЖН-2026-0098', mine:true, author:'Курманбаев Т. М.', title:'Электронная редакция как сервис университета', type:'Доклад', udk:'004.9', version:1, status:'review', updated:'2026-11-12', deadline:'2026-11-30', reviewers:['r3'], check:okCheck('ЖН-2026-0098','004.9'), review:null },
+    { id:'ЖН-2026-0114', mine:true, author:'Курманбаев Т. М.', title:'Классификация научных текстов по рубрикам УДК', type:'Статья', udk:'004.8', version:2, status:'fix', updated:'2026-11-17', deadline:null, reviewers:[],
+      check:{ abs:{ru:312,kg:268,en:214}, kw:{ru:7,kg:4,en:7}, titleOk:true, refs:12, gost:GOST_ERR.slice(), old:OLD_SRC.slice(), udk:'004.8', sections:[], code:'ЖН-2026-0114' }, review:null },
+    { id:'ЖН-2026-0161', mine:true, author:'Курманбаев Т. М.', title:'Метрики качества рецензирования в вузовских журналах', type:'Статья', udk:'004.8', version:0, status:'draft', updated:'2026-11-20', deadline:null, reviewers:[], check:null, review:null },
+    { id:'ЖН-2025-0412', mine:true, author:'Курманбаев Т. М.', title:'Хранение данных научных журналов в облаке', type:'Статья', udk:'004.6', version:2, status:'print', updated:'2026-11-12', deadline:null, reviewers:['r3','r1'], doi:'10.xxxxx/jn.2025.0412', issue:'№ 4, 2026, том 12', check:okCheck('ЖН-2025-0412','004.6'),
+      review:{ by:'r1', date:'2026-10-14', ratings:{akt:5,nov:4,met:4,gost:4}, comments:{akt:'Актуально.',nov:'Есть сравнение с аналогами.',met:'Методика описана полно.',gost:'Одна запись требовала правки.'},
+        remarks:[ { n:1, text:'В таблице 2 нет единиц измерения объёма данных.', quote:'Таблица 2. Объём хранимых данных', sum:RATE, resp:'Добавлены единицы: ГБ.', fixed:true, diff:{ was:'Таблица 2. Объём хранимых данных', now:'Таблица 2. Объём хранимых данных, ГБ' } } ] } },
+    { id:'ЖН-2026-0152', mine:false, author:'Асылбекова Н. Т.', title:'Нейросетевая классификация спутниковых снимков пастбищ', type:'Статья', udk:'004.8', version:1, status:'review', updated:'2026-11-18', deadline:'2026-12-02', reviewers:['r1'], check:okCheck('ЖН-2026-0152','004.8'), review:null },
+    { id:'ЖН-2026-0139', mine:false, author:'Токтогулов Э. А.', title:'Защищённый обмен файлами между кафедрами', type:'Доклад', udk:'004.7', version:2, status:'recheck', updated:'2026-11-20', deadline:'2026-11-27', reviewers:['r1'], check:okCheck('ЖН-2026-0139','004.7'),
+      review:{ by:'r1', date:'2026-11-03', ratings:{akt:4,nov:4,met:3,gost:4}, comments:{akt:'Тема актуальна для вузов.',nov:'Новизна в схеме распределения ключей.',met:'Не хватает модели угроз.',gost:'Замечаний нет.'},
+        remarks:[
+          { n:1, text:'Не описана модель угроз.', quote:'Обмен файлами защищён шифрованием.', sum:RATE, resp:'Добавлен раздел 2.3 с моделью угроз и таблицей рисков.', fixed:null, diff:{ was:'Обмен файлами защищён шифрованием.', now:'Обмен файлами защищён шифрованием TLS 1.3. Модель угроз приведена в разделе 2.3.' } },
+          { n:2, text:'В выводах нет ограничений исследования.', quote:'Предложенная схема подходит для всех вузов.', sum:RATE, resp:'Добавлен абзац об ограничениях: схема проверена на двух кафедрах.', fixed:null, diff:{ was:'Предложенная схема подходит для всех вузов.', now:'Схема проверена на двух кафедрах. Для других вузов нужна отдельная оценка.' } }
+        ] } },
+    { id:'ЖН-2026-0131', mine:false, author:'Иманалиева С. Ж.', title:'Байесовская оценка урожайности зерновых в Чуйской долине', type:'Статья', udk:'519.2', version:3, status:'approved', updated:'2026-11-16', deadline:null, reviewers:['r4'], check:okCheck('ЖН-2026-0131','519.2'), review:null },
+    { id:'ЖН-2026-0120', mine:false, author:'Абдыкадыров М. Н.', title:'Учёт лабораторного оборудования по QR-кодам', type:'Статья', udk:'004.9', version:2, status:'doi', updated:'2026-11-14', deadline:null, reviewers:['r2','r3'], doi:'10.xxxxx/jn.2026.0120', issue:'№ 4, 2026, том 12', check:okCheck('ЖН-2026-0120','004.9'), review:null },
+    { id:'ЖН-2026-0158', mine:false, author:'Жумабаева А. К.', title:'Оценка читаемости учебных текстов на кыргызском языке', type:'Диссертация', udk:'004.8', version:1, status:'review', updated:'2026-11-20', deadline:null, reviewers:[], check:okCheck('ЖН-2026-0158','004.8'), review:null }
+  ],
+  inv:[
+    { id:1, r:'r1', code:'ЖН-2026-0147', n:1, date:'2026-11-19', sum:RATE, st:'wait' },
+    { id:2, r:'r1', code:'ЖН-2026-0147', n:2, date:'2026-11-19', sum:RATE, st:'wait' },
+    { id:3, r:'r1', code:'ЖН-2026-0147', n:3, date:'2026-11-19', sum:RATE, st:'wait' },
+    { id:4, r:'r1', code:'ЖН-2026-0139', n:1, date:'2026-11-03', sum:RATE, st:'paid' },
+    { id:5, r:'r1', code:'ЖН-2026-0139', n:2, date:'2026-11-03', sum:RATE, st:'paid' },
+    { id:6, r:'r1', code:'ЖН-2025-0412', n:1, date:'2026-10-14', sum:RATE, st:'paid' },
+    { id:7, r:'r4', code:'ЖН-2026-0131', n:1, date:'2026-11-10', sum:RATE, st:'wait' },
+    { id:8, r:'r4', code:'ЖН-2026-0131', n:2, date:'2026-11-10', sum:RATE, st:'wait' },
+    { id:9, r:'r2', code:'ЖН-2026-0120', n:1, date:'2026-10-28', sum:RATE, st:'paid' }
+  ],
+  notes:{
+    author:[
+      { t:'Получены замечания Рецензента №1 по ЖН-2026-0147', d:'вчера, 16:05', unread:true, link:{v:'card', id:'ЖН-2026-0147'} },
+      { t:'ЖН-2026-0114: автопроверка нашла 4 пункта для исправления', d:'17.11.2026, 11:20', unread:true, link:{v:'report', id:'ЖН-2026-0114'} },
+      { t:'ЖН-2025-0412 отправлена в печать, DOI присвоен', d:'12.11.2026, 09:40', unread:false, link:{v:'card', id:'ЖН-2025-0412'} }
+    ],
+    reviewer:[
+      { t:'Автор загрузил исправления по ЖН-2026-0139. Вам отправлено SMS', d:'сегодня, 08:12', unread:true, link:{v:'recheck', id:'ЖН-2026-0139'} },
+      { t:'Новая работа по УДК 004.8: ЖН-2026-0152', d:'18.11.2026, 14:30', unread:true, link:{v:'review', id:'ЖН-2026-0152'} },
+      { t:'Счёт по ЖН-2026-0139 оплачен', d:'05.11.2026, 10:00', unread:false, link:{v:'invoices'} }
+    ],
+    editor:[
+      { t:'ЖН-2026-0158 прошла автопроверку и ждёт назначения рецензентов', d:'сегодня, 09:55', unread:true, link:{v:'panel'} },
+      { t:'ЖН-2026-0131 одобрена рецензентом, можно присвоить DOI', d:'16.11.2026, 17:10', unread:true, link:{v:'doi'} },
+      { t:'Новые счета рецензентов: 5 строк ожидают подтверждения', d:'19.11.2026, 18:00', unread:false, link:{v:'einv'} }
+    ]
+  }
+};
+
+const byId = id => S.works.find(w => w.id === id);
+const revNo = (w, r) => w.reviewers.indexOf(r) + 1;
+const load = r => S.works.filter(w => w.reviewers.includes(r) && ['review','remarks','recheck'].includes(w.status)).length;
+const chip = s => `<span class="chip ${ST_CLS[s]}">${ST[s]}</span>`;
+function notify(role, t, link){ S.notes[role].unshift({ t, d:'только что', unread:true, link }); }
+function nextCode(){ const c = 'ЖН-2026-' + String(S.seq).padStart(4, '0'); S.seq++; return c; }
+
+/* ---------- wizard ---------- */
+function newWiz(){ return { step:0, reached:0, type:'Статья', lang:'ru', textLang:'ru', meta:{ ru:{title:'',abs:'',kw:[]}, kg:{title:'',abs:'',kw:[]}, en:{title:'',abs:'',kw:[]} }, udk:'', udkq:'', file:null, fileErr:'', running:false, err:'', draftId:null }; }
+S.wiz = newWiz();
+const SAMPLE = {
+  ru:{ title:'Автоматическая проверка структуры научных рукописей', abs:'В статье рассматривается метод автоматической проверки структуры научных рукописей, поступающих в редакцию университетского журнала. Предложенный подход сравнивает разделы текста с требованиями журнала и стандарта оформления, а результаты проверки передаются автору до начала рецензирования.', n:312, kw:['рецензирование','ГОСТ','автопроверка','научный журнал','рукопись','структура текста','DOI'] },
+  kg:{ title:'Илимий кол жазмалардын түзүлүшүн автоматтык текшерүү', abs:'Макалада университеттин илимий журналынын редакциясына келген кол жазмалардын түзүлүшүн автоматтык түрдө текшерүү ыкмасы каралат. Сунушталган ыкма тексттин бөлүмдөрүн журналдын талаптары жана жол-жобо стандарты менен салыштырат.', n:268, kw:['рецензиялоо','ГОСТ','автотекшерүү','илимий журнал','кол жазма','DOI'] },
+  en:{ title:'Automated structure checking of scientific manuscripts', abs:'The paper describes a method for automated structure checking of manuscripts submitted to a university journal. The approach compares the sections of the text with the journal requirements and the formatting standard, and the results are sent to the author before peer review starts.', n:214, kw:['peer review','GOST','automated check','scientific journal','manuscript','text structure','DOI'] }
+};
+function sampleText(lang){ const w = SAMPLE[lang].abs.split(/\s+/); let out = []; while (out.length < SAMPLE[lang].n) out = out.concat(w); out = out.slice(0, SAMPLE[lang].n); return out.join(' ').replace(/[,.;]?$/, '.'); }
+function mismatch(lang, title){ const t = (title || '').trim(); if (!t) return false; const cyr = /[А-Яа-яЁёӨөҮүҢң]/.test(t), lat = /[A-Za-z]/.test(t); return lang === 'en' ? cyr : (lat && !cyr); }
+const inRange = (n, a, b) => n >= a && n <= b;
+function tabOk(l){ const m = S.wiz.meta[l]; return !!m.title.trim() && !mismatch(l, m.title) && inRange(wc(m.abs), 250, 500) && inRange(m.kw.length, 5, 10); }
+function absState(n){ if (!n) return ['', `0 слов, норма 250–500`]; if (n < 250) return ['bad', `${n} ${plural(n,'слово','слова','слов')}, мало`]; if (n > 500) return ['bad', `${n} ${plural(n,'слово','слова','слов')}, много`]; return ['ok', `${n} ${plural(n,'слово','слова','слов')}, в норме`]; }
+function kwState(n){ if (n < 5) return ['bad', `${n} из 5–10, мало`]; if (n > 10) return ['bad', `${n} из 5–10`]; return ['ok', `${n} из 5–10, в норме`]; }
+
+/* ---------- rules ---------- */
+function rules(c){
+  const absBad = LANGS.filter(l => !inRange(c.abs[l], 250, 500));
+  const kwBad = LANGS.filter(l => !inRange(c.kw[l], 5, 10));
+  return [
+    { t:'Аннотация 250–500 слов на каждом языке', ok:!absBad.length, d:LANGS.map(l => `${L[l]} ${c.abs[l]}`).join(', '),
+      fix:`<p>${absBad.map(l => `<b>${L[l]}:</b> ${c.abs[l]} ${plural(c.abs[l],'слово','слова','слов')}. ${c.abs[l] < 250 ? `Добавьте не меньше ${250 - c.abs[l]}` : `Сократите на ${c.abs[l] - 500}`}.`).join(' ')}</p>` },
+    { t:'Ключевые слова: от 5 до 10 на каждом языке', ok:!kwBad.length, d:LANGS.map(l => `${L[l]} ${c.kw[l]}`).join(', '),
+      fix:`<p>${kwBad.map(l => `<b>${L[l]}:</b> ${c.kw[l]} ${plural(c.kw[l],'слово','слова','слов')}, нужно от 5 до 10.`).join(' ')}</p>` },
+    { t:'Название на языке текста', ok:c.titleOk, d:c.titleOk ? 'совпадает' : 'не совпадает', fix:'<p>Напишите название на том же языке, что и основной текст рукописи.</p>' },
+    { t:'Список литературы: не меньше 10 источников', ok:c.refs >= 10, d:`${c.refs} ${plural(c.refs,'источник','источника','источников')}`, fix:`<p>Сейчас ${c.refs}. Добавьте ещё ${10 - c.refs}.</p>` },
+    { t:'Оформление литературы по ГОСТ', ok:!c.gost.length, d:c.gost.length ? `${c.gost.length} ${plural(c.gost.length,'запись','записи','записей')} с ошибками` : 'без ошибок',
+      fix:`<p>После фамилии ставится запятая, инициалы пишутся через пробел. Каждый автор отделяется запятой.</p>${c.gost.map(g => `<div class="cmp"><div><span class="label">Сейчас</span><s>${esc(g.wrong)}</s></div><div><span class="label">Нужно</span><span class="hl">${esc(g.right)}</span></div></div>`).join('')}` },
+    { t:'Журнальные источники не старше 5 лет', ok:!c.old.length, d:c.old.length ? `${c.old.length} ${plural(c.old.length,'устаревший','устаревших','устаревших')}` : '2021–2026',
+      fix:`<p>Замените эти источники на публикации 2021 года и новее:</p><ul class="oldlist">${c.old.map(o => `<li>${esc(o)}</li>`).join('')}</ul>` },
+    { t:'УДК указан', ok:!!c.udk, d:c.udk || 'нет', fix:'<p>Укажите УДК в метаданных работы.</p>' },
+    { t:'Обязательные разделы', ok:!c.sections.length, d:c.sections.length ? `нет: ${c.sections.join(', ')}` : 'все на месте', fix:`<p>Добавьте: ${esc(c.sections.join(', '))}. Обязательны введение, методы, результаты, заключение и литература.</p>` },
+    { t:'Шифр заявки присвоен', ok:true, d:c.code }
+  ];
+}
+
+/* ---------- navigation config ---------- */
+const NAV = {
+  author:[ {v:'works', t:'Мои работы', s:'Работы', i:'files'}, {v:'new', t:'Новая работа', s:'Подать', i:'plus'}, {v:'profile', t:'Профиль', s:'Профиль', i:'user'} ],
+  reviewer:[ {v:'inbox', t:'Входящие', s:'Входящие', i:'inbox'}, {v:'recheck', t:'Повторная проверка', s:'Проверка', i:'repeat'}, {v:'invoices', t:'Счета', s:'Счета', i:'receipt'}, {v:'rprofile', t:'Профиль', s:'Профиль', i:'user'} ],
+  editor:[ {v:'panel', t:'Панель', s:'Панель', i:'grid'}, {v:'doi', t:'DOI и печать', s:'DOI', i:'print'}, {v:'einv', t:'Счета рецензентам', s:'Счета', i:'receipt'}, {v:'analytics', t:'Аналитика цитирований', s:'Аналитика', i:'chart'} ]
+};
+const PARENT = { report:'works', card:'works', review:'inbox' };
+const ROLE_T = { author:'Автор', reviewer:'Рецензент', editor:'Редактор' };
+const WHO = {
+  author:{ name:'Курманбаев Т. М.', role:'автор', ini:'ТК' },
+  reviewer:{ name:'Осмонов Б. К.', role:'рецензент, УДК 004.8, 004.7', ini:'БО' },
+  editor:{ name:'Редакция журнала', role:'ответственный редактор', ini:'РЖ' }
+};
+function navCount(v){
+  if (v === 'works') return S.works.filter(w => w.mine).length;
+  if (v === 'inbox') return S.works.filter(w => w.reviewers.includes(ME_R) && w.status === 'review').length;
+  if (v === 'recheck') return S.works.filter(w => w.reviewers.includes(ME_R) && w.status === 'recheck').length;
+  if (v === 'panel') return S.works.filter(w => w.status === 'review' && !w.reviewers.length).length;
+  if (v === 'doi') return S.works.filter(w => ['approved','doi'].includes(w.status)).length;
+  if (v === 'einv') return S.inv.filter(i => i.st === 'wait').length;
+  return 0;
+}
+
+/* ---------- chrome ---------- */
+const main = $('#main');
+function renderChrome(){
+  $('#roleSeg').innerHTML = Object.keys(ROLE_T).map(r => `<button type="button" role="radio" aria-checked="${S.role === r}" data-act="role" data-role="${r}">${ROLE_T[r]}</button>`).join('');
+  $('#roleSel').value = S.role;
+  $('#avatar').textContent = WHO[S.role].ini;
+  const cur = PARENT[S.view[S.role]] || S.view[S.role];
+  $('#side').innerHTML = `<span class="label side__label">${ROLE_T[S.role]}</span>` + NAV[S.role].map(n => {
+    const c = navCount(n.v);
+    return `<button type="button" class="nav-i" data-act="nav" data-v="${n.v}"${cur === n.v ? ' aria-current="page"' : ''}>${icon(n.i)}<span>${n.t}</span>${c ? `<span class="nav-i__n">${c}</span>` : ''}</button>`;
+  }).join('') + `<div class="side__foot"><b>${WHO[S.role].name}</b><span>${WHO[S.role].role}</span></div>`;
+  $('#tabbar').innerHTML = NAV[S.role].map(n => {
+    const c = ['inbox','recheck','panel','einv'].includes(n.v) ? navCount(n.v) : 0;
+    return `<button type="button" class="tab-i" data-act="nav" data-v="${n.v}"${cur === n.v ? ' aria-current="page"' : ''} aria-label="${n.t}">${icon(n.i)}<span>${n.s}</span>${c ? `<span class="tab-i__n" aria-hidden="true">${c}</span>` : ''}</button>`;
+  }).join('');
+  const unread = S.notes[S.role].filter(n => n.unread).length;
+  const b = $('#bellCount'); b.hidden = !unread; b.textContent = unread;
+  $('#bellBtn').setAttribute('aria-label', unread ? `Уведомления, новых: ${unread}` : 'Уведомления');
+  if (!$('#notifPanel').hidden) renderNotes();
+}
+function renderNotes(){
+  const list = S.notes[S.role];
+  $('#notifPanel').innerHTML = `<div class="notif__head"><h2 style="font-size:16px">Уведомления</h2>${list.some(n => n.unread) ? `<button type="button" class="linkbtn" data-act="readAll" style="font-size:14px">Прочитать все</button>` : ''}</div>
+  <div class="notif__list">${list.length ? list.map((n, i) => `<button type="button" class="note${n.unread ? ' note--new' : ''}" data-act="note" data-i="${i}"><span class="note__t">${esc(n.t)}</span><span class="note__d">${esc(n.d)}</span>${n.unread ? '<span class="note__new">новое</span>' : ''}</button>`).join('') : '<p class="notif__empty">Уведомлений пока нет</p>'}</div>`;
+}
+function setNotif(open){
+  const p = $('#notifPanel'), b = $('#bellBtn');
+  p.hidden = !open; b.setAttribute('aria-expanded', String(open));
+  if (open){ renderNotes(); const f = p.querySelector('button'); if (f) f.focus(); }
+}
+
+/* ---------- render ---------- */
+function render(focusHead){
+  renderChrome();
+  const v = S.view[S.role];
+  main.innerHTML = `<div class="page">${(VIEWS[v] || VIEWS.works)()}</div>`;
+  if (focusHead){
+    if (!reduce) main.firstElementChild.classList.add('enter');
+    window.scrollTo(0, 0);
+    const h = main.querySelector('h1'); if (h){ h.tabIndex = -1; h.focus({ preventScroll:true }); }
+  }
+}
+function refresh(sel){
+  const y = window.scrollY;
+  render(false);
+  window.scrollTo(0, y);
+  if (sel){ const el = main.querySelector(sel) || document.querySelector(sel); if (el) el.focus({ preventScroll:true }); }
+}
+function go(v, id){ S.view[S.role] = v; S.id[S.role] = id || null; S.revErrs = []; S.respErr = new Set(); setNotif(false); render(true); }
+const backBtn = (v, t) => `<button type="button" class="back" data-act="nav" data-v="${v}">${icon('left')}${t}</button>`;
+const emptyState = (ic, t, p, btn) => `<div class="empty">${icon(ic)}<h2>${t}</h2><p>${p}</p>${btn || ''}</div>`;
+
+/* ================= AUTHOR ================= */
+function vWorks(){
+  const mine = S.works.filter(w => w.mine);
+  const list = (S.filter === 'all' ? mine : mine.filter(w => w.status === S.filter)).sort((a, b) => b.updated.localeCompare(a.updated));
+  const chips = [['all','Все',mine.length]].concat(Object.keys(ST).map(k => [k, ST[k], mine.filter(w => w.status === k).length]));
+  return `<div class="page-head"><div><h1>Мои работы</h1><p class="sub">Нажмите на название, чтобы открыть карточку работы.</p></div>
+    <button type="button" class="btn btn--primary" data-act="nav" data-v="new">${icon('plus')}Новая работа</button></div>
+  <div class="filters" role="group" aria-label="Фильтр по статусу">${chips.map(([k,t,n]) => `<button type="button" class="fchip" data-act="filter" data-f="${k}" aria-pressed="${S.filter === k}">${t}<span class="fchip__n">${n}</span></button>`).join('')}</div>
+  ${list.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Шифр</th><th>Название</th><th>Тип</th><th>УДК</th><th>Версия</th><th>Статус</th><th>Обновлено</th></tr></thead><tbody>
+  ${list.map(w => `<tr><td data-label="Шифр"><span class="code">${w.id}</span></td>
+    <td data-label="Название"><button type="button" class="tlink" data-act="open" data-v="${w.status === 'fix' ? 'report' : 'card'}" data-id="${w.id}">${esc(w.title)}</button></td>
+    <td data-label="Тип">${w.type}</td><td data-label="УДК"><span class="code">${w.udk}</span></td>
+    <td data-label="Версия">${w.version ? `<span class="mono">v${w.version}</span>` : '<span class="muted">нет файла</span>'}</td>
+    <td data-label="Статус">${chip(w.status)}</td><td data-label="Обновлено"><span class="mono">${fmt(w.updated)}</span></td></tr>`).join('')}
+  </tbody></table></div>`
+  : emptyState('files', `Нет работ со статусом «${ST[S.filter]}»`, 'Работы появятся здесь, когда их статус изменится. Можно показать все работы или подать новую.', `<div class="actions" style="justify-content:center"><button type="button" class="btn btn--ghost" data-act="filter" data-f="all">Показать все</button><button type="button" class="btn btn--primary" data-act="nav" data-v="new">Подать статью</button></div>`)}`;
+}
+
+const WSTEPS = ['Тип работы','Метаданные','УДК','Файл','Автопроверка'];
+function vNew(){
+  const z = S.wiz;
+  const steps = `<ol class="wsteps" aria-label="Шаги подачи">${WSTEPS.map((t, i) => `<li><button type="button" class="wstep${i < z.step ? ' done' : ''}" data-act="wstep" data-s="${i}"${i === z.step ? ' aria-current="step"' : ''}${i > z.reached || z.running ? ' disabled' : ''}><span class="wstep__bar"></span><span class="wstep__n">Шаг ${i + 1} из 5</span><span class="wstep__t">${t}</span></button></li>`).join('')}</ol>`;
+  const body = [wType, wMeta, wUdk, wFile, wCheck][z.step]();
+  const foot = z.step < 4 ? `<div class="wfoot">${z.step ? `<button type="button" class="btn btn--ghost" data-act="wprev">Назад</button>` : '<span></span>'}<button type="button" class="btn btn--primary" data-act="wnext" id="wnext">Далее</button></div>`
+    : (z.running ? '' : `<div class="wfoot"><button type="button" class="btn btn--ghost" data-act="wprev">Назад</button><span></span></div>`);
+  return `<div class="page-head"><div><h1>Новая работа</h1><p class="sub">Заполните данные и загрузите рукопись. Шифр присваивается после автопроверки.</p></div></div>
+    <div class="win"><div class="win__body">${steps}${z.err ? `<div class="errsum" role="alert" tabindex="-1" id="wErr" style="margin-bottom:20px"><h2>Проверьте шаг</h2><p>${esc(z.err)}</p></div>` : ''}${body}${foot}</div></div>`;
+}
+function wType(){
+  const T = [ ['Статья','Оригинальное исследование для выпуска журнала'], ['Диссертация','Текст диссертации или автореферата для экспертизы'], ['Доклад','Материалы конференции или научного семинара'] ];
+  return `<fieldset><legend class="sr">Тип работы</legend><h2 style="margin-bottom:16px">Что вы подаёте</h2><div class="types">${T.map(([t,d]) => `<label class="tcard"><input type="radio" name="wtype" value="${t}" data-in="wtype"${S.wiz.type === t ? ' checked' : ''}><span class="tcard__t">${t}</span><span class="tcard__d">${d}</span></label>`).join('')}</div></fieldset>`;
+}
+function wMeta(){
+  const z = S.wiz;
+  return `<div class="actions" style="justify-content:space-between;align-items:flex-end;margin-bottom:20px">
+    <div class="field" style="min-width:220px"><label for="textLang">Язык основного текста</label><select id="textLang" data-in="textLang">${LANGS.map(l => `<option value="${l}"${z.textLang === l ? ' selected' : ''}>${{ru:'Русский',kg:'Кыргызский',en:'Английский'}[l]}</option>`).join('')}</select></div>
+    <button type="button" class="btn btn--ghost btn--sm" data-act="sample">Заполнить примером</button></div>
+  <div class="ltabs" role="tablist" aria-label="Язык метаданных">${LANGS.map(l => `<button type="button" role="tab" class="ltab" id="lt-${l}" data-act="ltab" data-l="${l}" aria-selected="${z.lang === l}" aria-controls="metaPanel" tabindex="${z.lang === l ? 0 : -1}">${L[l]}<span class="st${tabOk(l) ? ' st--ok' : ''}" aria-hidden="true">${icon('check')}</span><span class="sr">${tabOk(l) ? ', заполнено' : ', не заполнено'}</span></button>`).join('')}</div>
+  <div role="tabpanel" id="metaPanel" aria-labelledby="lt-${z.lang}" class="stack">${metaPanel()}</div>`;
+}
+function metaPanel(){
+  const z = S.wiz, l = z.lang, m = z.meta[l];
+  const [ac, at] = absState(wc(m.abs)), [kc, kt] = kwState(m.kw.length);
+  const mm = mismatch(l, m.title);
+  return `<div class="field"><label for="m-title">Название (${L[l]}) <span class="req">*</span></label>
+      <input type="text" id="m-title" data-in="title" value="${esc(m.title)}" autocomplete="off">
+      <span class="warn" id="titleWarn"${mm ? '' : ' hidden'}>${icon('alert')}<span>Название во вкладке ${L[l]} должно быть на ${LANG_PREP[l]} языке.${l === z.textLang ? ' Это язык основного текста: автопроверка сверит его с рукописью.' : ''}</span></span></div>
+    <div class="field"><div class="lbl-row"><label for="m-abs">Аннотация (${L[l]})</label><span class="counter ${ac}" id="absCount" aria-live="polite">${at}</span></div>
+      <textarea id="m-abs" data-in="abs" rows="8">${esc(m.abs)}</textarea><span class="help">Норма для каждого языка: от 250 до 500 слов.</span></div>
+    <div class="field"><div class="lbl-row"><label for="m-kw">Ключевые слова (${L[l]})</label><span class="counter ${kc}" id="kwCount" aria-live="polite">${kt}</span></div>
+      <div class="kw"><ul class="kw__chips" id="kwChips" aria-label="Добавленные слова">${kwChips()}</ul><input id="m-kw" data-in="kw" type="text" autocomplete="off" placeholder="Слово и Enter" aria-describedby="kwHelp"></div>
+      <span class="help" id="kwHelp">От 5 до 10 слов. Enter или запятая добавляет слово.</span><span class="err" id="kwErr" hidden></span></div>`;
+}
+const kwChips = () => S.wiz.meta[S.wiz.lang].kw.map((k, i) => `<li class="kwchip">${esc(k)}<button type="button" data-act="kwdel" data-i="${i}" aria-label="Удалить слово ${esc(k)}">${icon('x')}</button></li>`).join('');
+function updateMeta(){
+  const z = S.wiz, m = z.meta[z.lang];
+  const [ac, at] = absState(wc(m.abs)), [kc, kt] = kwState(m.kw.length);
+  const a = $('#absCount'); if (a){ a.className = 'counter ' + ac; a.textContent = at; }
+  const k = $('#kwCount'); if (k){ k.className = 'counter ' + kc; k.textContent = kt; }
+  const tw = $('#titleWarn'); if (tw) tw.hidden = !mismatch(z.lang, m.title);
+  LANGS.forEach(l => { const t = $('#lt-' + l); if (!t) return; const ok = tabOk(l); t.querySelector('.st').classList.toggle('st--ok', ok); t.querySelector('.sr').textContent = ok ? ', заполнено' : ', не заполнено'; });
+}
+function addKw(inp){
+  const v = inp.value.replace(/,/g, '').trim(); const arr = S.wiz.meta[S.wiz.lang].kw; const e = $('#kwErr');
+  if (!v) return;
+  if (arr.length >= 10){ e.textContent = 'Не больше 10 ключевых слов. Удалите лишнее, чтобы добавить новое.'; e.hidden = false; return; }
+  if (arr.some(x => x.toLowerCase() === v.toLowerCase())){ e.textContent = 'Это слово уже добавлено.'; e.hidden = false; return; }
+  e.hidden = true; arr.push(v); inp.value = ''; $('#kwChips').innerHTML = kwChips(); updateMeta();
+}
+function udkOptions(){
+  const q = S.wiz.udkq.trim().toLowerCase();
+  const list = UDK.filter(u => !q || u.code.startsWith(q) || u.name.toLowerCase().includes(q));
+  return list.length ? list.map(u => `<li><button type="button" class="udk-opt" data-act="udk" data-code="${u.code}" aria-pressed="${S.wiz.udk === u.code}"><span class="code">${u.code}</span><span>${u.name}</span></button></li>`).join('')
+    : `<li class="help" style="padding:12px">Ничего не найдено. Проверьте код по таблицам УДК или введите раздел словами.</li>`;
+}
+function wUdk(){
+  const z = S.wiz;
+  return `<h2 style="margin-bottom:16px">УДК работы</h2>
+  ${z.udk ? `<div class="notice" style="margin-bottom:16px">${icon('check')}<span>Выбран <b class="code">${z.udk}</b> ${esc(udkName(z.udk))}. По этому коду редакция подберёт рецензентов.</span></div>` : ''}
+  <div class="field"><label for="udkq">Поиск по коду или названию раздела</label><input type="search" id="udkq" data-in="udkq" value="${esc(z.udkq)}" placeholder="Например, 004.8 или интеллект" autocomplete="off" aria-controls="udkList"></div>
+  <ul class="udk-list" id="udkList" aria-label="Разделы УДК">${udkOptions()}</ul>`;
+}
+function wFile(){
+  const z = S.wiz;
+  return `<h2 style="margin-bottom:16px">Рукопись</h2>
+  ${z.file ? `<div class="stack-s"><div class="file"><span class="file__ico">DOCX</span><div><span class="file__name">${esc(z.file.name)}</span><span class="file__meta">${z.file.size}</span></div><label class="btn btn--ghost btn--sm" for="fileIn">Заменить</label></div>
+      <div class="notice">${icon('lock')}<span><b>Из свойств файла удалены: автор, организация.</b> Текст рукописи не изменён. Рецензент увидит только шифр.</span></div></div>
+      <input id="fileIn" type="file" accept=".docx" class="sr" data-in="file">`
+  : `<input id="fileIn" type="file" accept=".docx" class="sr" data-in="file"><label class="drop" for="fileIn" id="drop">${icon('up')}<span><b>Перетащите файл .docx сюда</b> или <u>выберите на компьютере</u></span><span class="help">Один файл, только .docx</span></label>
+     <div style="margin-top:12px"><button type="button" class="btn btn--ghost btn--sm" data-act="sampleFile">Использовать пример файла</button></div>`}
+  ${z.fileErr ? `<p class="err" role="alert" style="margin-top:12px">${esc(z.fileErr)}</p>` : ''}`;
+}
+function wCheck(){
+  const z = S.wiz, m = z.meta[z.textLang];
+  if (z.running) return `<h2 style="margin-bottom:16px">Идёт автопроверка</h2><div class="win" aria-busy="true" aria-label="Проверка рукописи">${Array.from({length:9}).map(() => `<div class="sk-row"><span class="sk sk-dot"></span><span class="sk"></span><span class="sk"></span></div>`).join('')}</div>`;
+  return `<h2 style="margin-bottom:16px">Проверьте данные</h2>
+  <dl class="sum-list"><div><dt>Тип</dt><dd>${z.type}</dd></div><div><dt>Название</dt><dd>${esc(m.title || z.meta.ru.title)}</dd></div><div><dt>Язык текста</dt><dd>${L[z.textLang]}</dd></div><div><dt>УДК</dt><dd><span class="code">${z.udk}</span> ${esc(udkName(z.udk))}</dd></div><div><dt>Файл</dt><dd>${esc(z.file ? z.file.name : '')}</dd></div></dl>
+  <div class="notice" style="margin-top:20px">${icon('search')}<span>Скрипт проверит 9 требований: аннотации, ключевые слова, название, литературу и ГОСТ, возраст источников, УДК, разделы. После проверки работа получит шифр.</span></div>
+  <div style="margin-top:20px"><button type="button" class="btn btn--primary" data-act="runCheck">Запустить автопроверку</button></div>`;
+}
+function wValidate(){
+  const z = S.wiz;
+  if (z.step === 1){ const miss = LANGS.filter(l => !z.meta[l].title.trim()); if (miss.length) return `Заполните название на языках: ${miss.map(l => L[l]).join(', ')}.`; }
+  if (z.step === 2 && !z.udk) return 'Выберите УДК из списка.';
+  if (z.step === 3 && !z.file) return 'Загрузите файл рукописи .docx.';
+  return '';
+}
+function handleFile(f){
+  if (!f) return;
+  if (!/\.docx$/i.test(f.name)){ S.wiz.fileErr = `Файл «${f.name}» не в формате .docx. Сохраните рукопись как .docx и загрузите снова.`; S.wiz.file = null; }
+  else { S.wiz.fileErr = ''; S.wiz.file = { name:f.name, size:(f.size / 1048576).toFixed(1).replace('.', ',') + ' МБ' }; S.wiz.err = ''; }
+  refresh(S.wiz.file ? '[data-act="wnext"]' : '#fileIn');
+}
+function runCheck(){
+  const z = S.wiz; z.running = true; refresh();
+  setTimeout(() => {
+    const code = z.draftId || nextCode();
+    const c = { abs:{}, kw:{}, titleOk:!mismatch(z.textLang, z.meta[z.textLang].title), refs:14, gost:[GOST_ERR[0]], old:[OLD_SRC[0]], udk:z.udk, sections:[], code };
+    LANGS.forEach(l => { c.abs[l] = wc(z.meta[l].abs); c.kw[l] = z.meta[l].kw.length; });
+    const pass = rules(c).every(r => r.ok);
+    const w = { id:code, mine:true, author:'Курманбаев Т. М.', title:z.meta[z.textLang].title || z.meta.ru.title, type:z.type, udk:z.udk, version:1, status:pass ? 'review' : 'fix', updated:TODAY, deadline:null, reviewers:[], check:c, review:null };
+    S.works = S.works.filter(x => x.id !== code); S.works.unshift(w);
+    if (pass) notify('editor', `${code} прошла автопроверку и ждёт назначения рецензентов`, {v:'panel'});
+    S.wiz = newWiz();
+    go('report', code);
+    toast(`Работе присвоен шифр ${code}`);
+  }, reduce ? 300 : 1200);
+}
+
+function vReport(){
+  const w = byId(S.id.author);
+  if (!w || !w.check) return `${backBtn('works','Мои работы')}${emptyState('files','Отчёта пока нет','Автопроверка запускается после загрузки файла .docx.', `<button type="button" class="btn btn--primary" data-act="nav" data-v="new">Подать статью</button>`)}`;
+  const rs = rules(w.check), ok = rs.filter(r => r.ok).length, fail = rs.length - ok;
+  return `${backBtn('works','Мои работы')}
+  <div class="page-head"><div><h1>Отчёт автопроверки</h1><p class="sub"><span class="code">${w.id}</span> · ${esc(w.title)} · версия ${w.version}</p></div>
+    <button type="button" class="btn btn--ghost" data-act="open" data-v="card" data-id="${w.id}">Карточка работы</button></div>
+  <div class="rsum"><span class="rsum__n">Пройдено ${ok} из ${rs.length}</span><span class="cells" aria-hidden="true">${rs.map(r => `<i class="${r.ok ? 'ok' : ''}"></i>`).join('')}</span>${fail ? `<span class="chip chip--attn">Исправить: ${fail}</span>` : `<span class="chip chip--ok">${icon('check')}Требования выполнены</span>`}</div>
+  <div class="win">${rs.map(r => `<div class="rule${r.ok ? '' : ' rule--fail'}"><span class="st ${r.ok ? 'st--ok' : 'st--fix'}">${icon(r.ok ? 'check' : 'alert')}</span><span class="rule__t">${r.t}<span class="sr">${r.ok ? ', пройдено' : ', не пройдено'}</span></span><span class="rule__d">${esc(r.d)}</span>${r.ok ? '' : `<div class="rule__fix"><b>Что исправить</b>${r.fix}</div>`}</div>`).join('')}</div>
+  <div class="actions" style="margin-top:24px">${fail ? `<button type="button" class="btn btn--primary" data-act="fixUpload" data-id="${w.id}" id="fixBtn">${icon('up')}Загрузить исправленный файл</button><span class="help">Новая версия пройдёт автопроверку заново.</span>` : `<span class="help">Работа передана редакции для назначения рецензентов.</span>`}</div>`;
+}
+
+function timeline(w){
+  const cur = STAGE_OF[w.status];
+  return `<ol class="tl" aria-label="Этапы работы">${STAGES.map((t, i) => { const c = i < cur || (i === cur && w.status === 'print') ? 'done' : i === cur ? 'cur' : ''; return `<li class="${c}"${i === cur ? ' aria-current="step"' : ''}><span class="tl__n">${icon('check')}</span><span>${t}${c === 'done' ? '<span class="sr">, пройден</span>' : ''}</span></li>`; }).join('')}</ol>`;
+}
+function ratingsBlock(rv){
+  return `<div class="ratings">${CRIT.map(c => `<div class="od-stat"><span class="label">${c.t}</span><span class="v">${rv.ratings[c.k] || '?'} <span class="muted" style="font-size:14px">из 5</span></span></div>`).join('')}</div>
+  <div class="stack-s">${CRIT.filter(c => rv.comments[c.k]).map(c => `<p style="font-size:15px"><b style="font-weight:500">${c.t}.</b> <span style="color:var(--ink-2)">${esc(rv.comments[c.k])}</span></p>`).join('')}</div>`;
+}
+function vCard(){
+  const w = byId(S.id.author);
+  if (!w) return emptyState('files','Работа не найдена','Вернитесь к списку работ.', `<button type="button" class="btn btn--primary" data-act="nav" data-v="works">Мои работы</button>`);
+  let body = '';
+  if (w.status === 'draft') body = `<div class="notice">${icon('up')}<span><b>Файл ещё не загружен.</b> Продолжите подачу: заполните метаданные и загрузите .docx.</span></div><div><button type="button" class="btn btn--primary" data-act="continue" data-id="${w.id}">Продолжить подачу</button></div>`;
+  else if (w.status === 'fix'){ const nf = rules(w.check).filter(r => !r.ok).length; body = `<div class="notice">${icon('alert')}<span><b>Автопроверка нашла ${nf} ${plural(nf,'пункт','пункта','пунктов')} для исправления.</b> Исправьте файл и загрузите его заново.</span></div><div><button type="button" class="btn btn--primary" data-act="open" data-v="report" data-id="${w.id}">Открыть отчёт</button></div>`; }
+  else if (w.status === 'review') body = `<div class="notice">${icon('lock')}<span>${w.reviewers.length ? `<b>Работа у ${w.reviewers.length} ${plural(w.reviewers.length,'рецензента','рецензентов','рецензентов')}.</b> Рецензенты видят только шифр. Когда придут замечания, вы получите письмо и уведомление.` : '<b>Ожидает назначения рецензентов.</b> Редакция подберёт их по УДК.'}</span></div>`;
+  if (w.review){
+    const rv = w.review, n = revNo(w, rv.by) || 1, editable = w.status === 'remarks';
+    body += `<section class="win" aria-labelledby="rv-h"><div class="win__head"><h2 id="rv-h">Рецензент №${n}</h2><span class="mono muted">рецензия от ${fmt(rv.date)}</span></div><div class="win__body stack">${ratingsBlock(rv)}
+      <div class="stack-s"><h3>Замечания</h3>${rv.remarks.map(r => {
+        const bad = S.respErr.has(r.n);
+        return `<div class="remark"><div class="remark__head"><span class="remark__n">Замечание ${r.n}</span>${r.fixed === true ? `<span class="chip chip--on">${icon('check')}Исправлено</span>` : r.fixed === false ? '<span class="chip chip--attn">Не исправлено</span>' : ''}</div>
+          ${r.quote ? `<blockquote>${esc(r.quote)}</blockquote>` : ''}<p>${esc(r.text)}</p>
+          ${editable ? `<div class="field${bad ? ' bad' : ''}"><label for="resp-${r.n}">Ваш ответ на замечание ${r.n}</label><textarea id="resp-${r.n}" data-in="resp" data-n="${r.n}" rows="3" placeholder="Что и где исправлено">${esc(r.resp)}</textarea>${bad ? `<span class="err">Напишите, что исправлено по этому замечанию.</span>` : ''}</div>`
+          : r.resp ? `<p class="help"><b style="color:var(--ink);font-weight:500">Ваш ответ:</b> ${esc(r.resp)}</p>` : ''}</div>`; }).join('')}</div>
+      ${editable ? `<div class="actions"><button type="button" class="btn btn--primary" data-act="newVersion" data-id="${w.id}">${icon('up')}Загрузить новую версию</button><span class="help">Рецензент получит SMS и письмо о том, что исправления загружены.</span></div>` : ''}
+    </div></section>`;
+    w.reviewers.filter(r => r !== rv.by).forEach(r => { body += `<div class="notice">${icon('lock')}<span><b>Рецензент №${revNo(w, r)}:</b> рецензия ожидается.</span></div>`; });
+  }
+  if (w.doi) body += `<div class="win"><div class="win__body"><dl class="sum-list"><div><dt>DOI</dt><dd class="code">${esc(w.doi)}</dd></div><div><dt>Выпуск</dt><dd>${esc(w.issue || '')}</dd></div></dl></div></div>`;
+  return `${backBtn('works','Мои работы')}
+  <div class="page-head"><div><span class="code" style="font-size:15px">${w.id}</span><h1 style="margin-top:4px">${esc(w.title)}</h1><p class="sub">${w.type} · УДК ${w.udk} · ${w.version ? 'версия ' + w.version : 'файл не загружен'} · обновлено ${fmt(w.updated)}</p></div>
+    <div class="actions">${chip(w.status)}${w.check ? `<button type="button" class="btn btn--ghost btn--sm" data-act="open" data-v="report" data-id="${w.id}">Отчёт автопроверки</button>` : ''}</div></div>
+  ${timeline(w)}<div class="stack">${body}</div>`;
+}
+
+function vProfile(){
+  const p = S.profile, e = S.profErr;
+  const f = (k, label, type, extra) => `<div class="field${e[k] ? ' bad' : ''}"><label for="pf-${k}">${label}</label><input type="${type}" id="pf-${k}" data-in="prof" data-k="${k}" value="${esc(p[k])}"${extra || ''}>${e[k] ? `<span class="err">${e[k]}</span>` : ''}</div>`;
+  return `<div class="page-head"><div><h1>Профиль автора</h1><p class="sub">Данные для связи с редакцией и уведомлений.</p></div></div>
+  <div class="notice" style="margin-bottom:24px">${icon('lock')}<span><b>Рецензенты эти данные не видят.</b> Они знают работу только по шифру, а вас видят как «Автор». Имя видит только редакция.</span></div>
+  <div class="win"><div class="win__body stack"><div class="grid2">
+    ${f('fio','ФИО <span class="req">*</span>','text',' autocomplete="name"')}${f('degree','Учёная степень','text','')}
+    ${f('org','Организация','text',' autocomplete="organization"')}${f('email','E-mail <span class="req">*</span>','email',' autocomplete="email" spellcheck="false"')}
+    <div class="field${e.phone ? ' bad' : ''}"><label for="pf-phone">Телефон для SMS <span class="req">*</span></label><input type="tel" id="pf-phone" data-in="prof" data-k="phone" value="${esc(p.phone)}" autocomplete="tel"><span class="help">SMS приходят о замечаниях и решении по работе.</span>${e.phone ? `<span class="err">${e.phone}</span>` : ''}</div>
+    <fieldset class="field"><legend class="lbl" style="font:500 14px var(--sans);color:var(--ink)">Языки публикаций</legend><div class="actions">${LANGS.map(l => `<label class="pick" style="margin:0;padding:8px"><input type="checkbox" data-in="plang" value="${l}"${p.langs.includes(l) ? ' checked' : ''}><span class="pick__box">${icon('check')}</span><span class="pick__name">${{ru:'Русский',kg:'Кыргызский',en:'Английский'}[l]}</span></label>`).join('')}</div></fieldset>
+  </div><div><button type="button" class="btn btn--primary" data-act="saveProfile">Сохранить</button></div></div></div>`;
+}
+
+/* ================= REVIEWER ================= */
+const rStatus = w => w.status === 'review' ? 'Новая' : w.status === 'recheck' ? 'Исправлена' : 'Отправлено';
+const rChip = s => `<span class="chip ${s === 'Новая' ? 'chip--on' : s === 'Исправлена' ? 'chip--attn' : 'chip--plain'}">${s}</span>`;
+function vInbox(){
+  const mine = S.works.filter(w => w.reviewers.includes(ME_R) && !['draft','fix'].includes(w.status));
+  const list = S.rfilter === 'all' ? mine : mine.filter(w => rStatus(w) === S.rfilter);
+  const opts = [['all','Все'],['Новая','Новая'],['Исправлена','Исправлена'],['Отправлено','Отправлено']];
+  return `<div class="page-head"><div><h1>Входящие</h1><p class="sub">Работы подобраны по вашим УДК: ${R[ME_R].udk.join(', ')}. Имена авторов скрыты.</p></div></div>
+  <div class="filters" role="group" aria-label="Фильтр по статусу">${opts.map(([k,t]) => `<button type="button" class="fchip" data-act="rfilter" data-f="${k}" aria-pressed="${S.rfilter === k}">${t}<span class="fchip__n">${k === 'all' ? mine.length : mine.filter(w => rStatus(w) === k).length}</span></button>`).join('')}</div>
+  ${list.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Шифр</th><th>Название</th><th>УДК</th><th>Срок</th><th>Статус</th><th><span class="sr">Действие</span></th></tr></thead><tbody>
+  ${list.map(w => { const s = rStatus(w); const v = s === 'Исправлена' ? 'recheck' : 'review'; const d = w.deadline ? daysTo(w.deadline) : null;
+    return `<tr><td data-label="Шифр"><span class="code">${w.id}</span></td><td data-label="Название"><button type="button" class="tlink" data-act="open" data-v="${v}" data-id="${w.id}">${esc(w.title)}</button></td><td data-label="УДК"><span class="code">${w.udk}</span></td>
+    <td data-label="Срок">${w.deadline && s !== 'Отправлено' ? `<span class="mono">до ${fmt(w.deadline)}</span><br><span class="help">${d} ${plural(d,'день','дня','дней')}</span>` : '<span class="muted">нет</span>'}</td><td data-label="Статус">${rChip(s)}</td>
+    <td class="nolabel"><button type="button" class="btn btn--sm ${s === 'Отправлено' ? 'btn--ghost' : 'btn--primary'}" data-act="open" data-v="${v}" data-id="${w.id}">${s === 'Новая' ? 'Рецензировать' : s === 'Исправлена' ? 'Проверить' : 'Открыть'}</button></td></tr>`; }).join('')}
+  </tbody></table></div>`
+  : emptyState('inbox', 'Здесь пока пусто', S.rfilter === 'all' ? 'Новые работы по вашим УДК появятся здесь. Мы пришлём SMS и письмо.' : `Работ со статусом «${S.rfilter}» нет.`, S.rfilter === 'all' ? '' : `<button type="button" class="btn btn--ghost" data-act="rfilter" data-f="all">Показать все</button>`)}`;
+}
+function msHTML(w, ro){
+  const F = q => `<button type="button" class="frag" data-act="frag" data-q="${esc(q)}"${ro ? ' disabled' : ` aria-label="Добавить замечание к фрагменту: ${esc(q)}"`}>${esc(q)}</button>`;
+  return `<h2>${esc(w.title)}</h2><p class="ms__meta mono">${w.id} · УДК ${w.udk} · версия ${w.version}</p>
+  ${ro ? '' : `<p class="ms__hint">${icon('plus')}Нажмите на выделенный фрагмент, чтобы добавить к нему замечание.</p>`}
+  <h3>Аннотация</h3><p>В работе рассматривается задача по теме «${esc(w.title)}». Описаны исходные данные, метод и результаты апробации в университете.</p>
+  <h3>1. Введение</h3><p>Редакции вузовских журналов получают рукописи разного качества. ${F('Существующие решения не учитывают требования ГОСТ к оформлению.')} Это увеличивает нагрузку на рецензентов и сроки выхода выпуска.</p>
+  <h3>2. Методы</h3><p>${F('Выборка сформирована из рукописей, поступивших в редакцию.')} Каждая рукопись размечена по разделам и проверена по правилам журнала. Разметку выполняли два эксперта независимо друг от друга.</p>
+  <h3>3. Результаты</h3><p>Метод выявил большую часть ошибок оформления до передачи рукописи рецензенту.</p><p>${F('Рисунок 3. Распределение ошибок оформления')}</p>
+  <h3>4. Заключение</h3><p>${F('Предложенный подход подходит для любых научных журналов.')} Дальнейшая работа связана с проверкой ссылок на источники.</p>
+  <h3>Литература</h3><ol class="ms__refs"><li>${F('Иванов П. С. Анализ структуры текстов // Вестник. 2017.')}</li><li>Асанова, Г. К. Цифровые сервисы научных журналов // Наука и образование. 2023. № 1. С. 12–19.</li></ol>`;
+}
+function draftFor(id){ return S.drafts[id] || (S.drafts[id] = { ratings:{}, comments:{}, remarks:[] }); }
+function remarksHTML(d){
+  return d.remarks.length ? d.remarks.map((r, i) => `<div class="remark"><div class="remark__head"><span class="remark__n">Замечание ${i + 1}</span><span class="chip chip--on">оплачиваемое замечание</span><span class="remark__sum">${som(RATE)}</span><button type="button" class="icon-btn" style="width:36px;height:36px" data-act="remDel" data-i="${i}" aria-label="Удалить замечание ${i + 1}">${icon('x')}</button></div>
+    ${r.quote ? `<blockquote>${esc(r.quote)}</blockquote>` : ''}<div class="field"><label class="sr" for="rem-${i}">Текст замечания ${i + 1}</label><textarea id="rem-${i}" data-in="rem" data-i="${i}" rows="3" placeholder="Что именно нужно исправить">${esc(r.text)}</textarea></div></div>`).join('')
+    : `<p class="help">Замечаний пока нет. Добавьте их кнопкой ниже или нажмите на фрагмент в тексте.</p>`;
+}
+const remTotal = d => `${d.remarks.length} ${plural(d.remarks.length,'замечание','замечания','замечаний')} × ${som(RATE)} = <b>${som(d.remarks.length * RATE)}</b>`;
+function vReview(){
+  const w = byId(S.id.reviewer);
+  if (!w) return emptyState('inbox','Работа не найдена','Вернитесь во входящие.', `<button type="button" class="btn btn--primary" data-act="nav" data-v="inbox">Входящие</button>`);
+  const ro = w.status !== 'review';
+  const n = revNo(w, ME_R);
+  let right;
+  if (ro){
+    const rv = w.review;
+    right = `<div class="win"><div class="win__head"><h2>Ваша рецензия</h2>${rChip(rStatus(w))}</div><div class="win__body stack">${rv ? ratingsBlock(rv) + `<div class="stack-s"><h3>Замечания</h3>${rv.remarks.map(r => `<div class="remark"><div class="remark__head"><span class="remark__n">Замечание ${r.n}</span><span class="remark__sum">${som(r.sum)}</span></div>${r.quote ? `<blockquote>${esc(r.quote)}</blockquote>` : ''}<p>${esc(r.text)}</p></div>`).join('')}</div>` : '<p class="help">Рецензия отправлена без замечаний.</p>'}
+      <div class="notice">${icon('msg')}<span>${w.status === 'remarks' ? 'Ожидаем исправлений автора. Когда новая версия будет загружена, придёт SMS.' : `Текущий статус работы: ${ST[w.status]}.`}</span></div></div></div>`;
+  } else {
+    const d = draftFor(w.id), errs = S.revErrs;
+    right = `<div class="win"><div class="win__head"><h2>Анкета</h2><span class="mono muted">Рецензент №${n}</span></div>
+    ${errs.length ? `<div class="win__body" style="padding-bottom:0"><div class="errsum" role="alert" tabindex="-1" id="revErr"><h2>Заполните анкету</h2><ul>${errs.map(e => `<li><button type="button" data-act="jump" data-id="${e.id}">${e.t}</button></li>`).join('')}</ul></div></div>` : ''}
+    <div class="win__body">${CRIT.map(c => `<fieldset class="crit"><div class="crit__top"><legend class="lbl" style="font:500 15px var(--sans);color:var(--ink);margin:0">${c.t} <span class="req">*</span></legend>
+      <div class="rate" role="radiogroup" aria-label="${c.t}, оценка от 1 до 5">${[1,2,3,4,5].map(v => `<label><input type="radio" name="rate-${c.k}" id="rate-${c.k}-${v}" value="${v}" data-in="rate" data-k="${c.k}"${d.ratings[c.k] === v ? ' checked' : ''}><span>${v}</span></label>`).join('')}</div></div>
+      <label class="sr" for="rc-${c.k}">Комментарий: ${c.t}</label><div class="field"><textarea id="rc-${c.k}" data-in="rcom" data-k="${c.k}" rows="2" placeholder="Комментарий">${esc(d.comments[c.k] || '')}</textarea></div></fieldset>`).join('')}
+      <div class="stack-s" style="margin-top:20px"><div class="lbl-row"><h3>Замечания</h3><span class="help">Ставка за замечание: ${som(RATE)} (пример)</span></div><div class="stack-s" id="remarks">${remarksHTML(d)}</div>
+      <div class="actions" style="justify-content:space-between"><button type="button" class="btn btn--ghost btn--sm" data-act="remAdd" id="remAddBtn">${icon('plus')}Добавить замечание</button><span class="help" id="remTotal">${remTotal(d)}</span></div></div></div>
+    <div class="dec"><div class="actions"><button type="button" class="btn btn--ghost" data-act="decide" data-d="send">Отправить на доработку</button><button type="button" class="btn btn--primary" data-act="decide" data-d="approve">Рекомендовать к публикации</button></div>
+      <p class="help">${icon('msg', 14)} Копия рецензии уйдёт автору на e-mail. Ваше имя автор не увидит, только «Рецензент №${n}».</p></div></div>`;
+  }
+  return `${backBtn('inbox','Входящие')}
+  <div class="page-head"><div><h1>Рецензия</h1><p class="rhead"><span class="code">${w.id}</span><span>УДК ${w.udk}</span>${w.deadline && !ro ? `<span>срок до ${fmt(w.deadline)}</span>` : ''}<span>${w.type}</span></p></div></div>
+  <div class="rev"><article class="ms" aria-label="Текст рукописи">${msHTML(w, ro)}</article><div>${right}</div></div>`;
+}
+function validateReview(d, needRemarks){
+  const e = [];
+  CRIT.forEach(c => { if (!d.ratings[c.k]) e.push({ id:`rate-${c.k}-1`, t:`Поставьте оценку: ${c.t}` }); });
+  if (needRemarks && !d.remarks.length) e.push({ id:'remAddBtn', t:'Добавьте хотя бы одно замечание' });
+  d.remarks.forEach((r, i) => { if (!r.text.trim()) e.push({ id:`rem-${i}`, t:`Напишите текст замечания ${i + 1}` }); });
+  return e;
+}
+function decide(kind){
+  const w = byId(S.id.reviewer), d = draftFor(w.id);
+  const errs = validateReview(d, kind === 'send');
+  if (errs.length){ S.revErrs = errs; refresh('#revErr'); return; }
+  S.revErrs = [];
+  const n = revNo(w, ME_R);
+  w.review = { by:ME_R, date:TODAY, ratings:Object.assign({}, d.ratings), comments:Object.assign({}, d.comments), remarks:d.remarks.map((r, i) => ({ n:i + 1, text:r.text.trim(), quote:r.quote, sum:RATE, resp:'', fixed:null })) };
+  let maxId = Math.max.apply(null, S.inv.map(i => i.id));
+  w.review.remarks.forEach(r => S.inv.push({ id:++maxId, r:ME_R, code:w.id, n:r.n, date:TODAY, sum:RATE, st:'wait' }));
+  w.updated = TODAY;
+  if (kind === 'send'){
+    w.status = 'remarks';
+    if (w.mine) notify('author', `Получены замечания Рецензента №${n} по ${w.id}`, { v:'card', id:w.id });
+    toast('Рецензия отправлена. Копия ушла автору на e-mail');
+  } else {
+    w.status = 'approved';
+    if (w.mine) notify('author', `${w.id} одобрена Рецензентом №${n}`, { v:'card', id:w.id });
+    notify('editor', `${w.id} рекомендована к публикации, можно присвоить DOI`, { v:'doi' });
+    toast('Работа рекомендована к публикации');
+  }
+  if (w.review.remarks.length) notify('editor', `Новые строки счёта: ${w.review.remarks.length} по ${w.id}`, { v:'einv' });
+  delete S.drafts[w.id];
+  go('inbox');
+}
+function vRecheck(){
+  const id = S.id.reviewer;
+  if (!id){
+    const list = S.works.filter(w => w.reviewers.includes(ME_R) && w.status === 'recheck');
+    return `<div class="page-head"><div><h1>Повторная проверка</h1><p class="sub">Работы, где автор загрузил исправления.</p></div></div>
+    ${list.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Шифр</th><th>Название</th><th>Версия</th><th>Замечаний</th><th><span class="sr">Действие</span></th></tr></thead><tbody>${list.map(w => `<tr><td data-label="Шифр"><span class="code">${w.id}</span></td><td data-label="Название"><button type="button" class="tlink" data-act="open" data-v="recheck" data-id="${w.id}">${esc(w.title)}</button></td><td data-label="Версия"><span class="mono">v${w.version}</span></td><td data-label="Замечаний">${w.review ? w.review.remarks.length : 0}</td><td class="nolabel"><button type="button" class="btn btn--primary btn--sm" data-act="open" data-v="recheck" data-id="${w.id}">Проверить</button></td></tr>`).join('')}</tbody></table></div>`
+    : emptyState('repeat','Исправленных работ нет','Когда автор загрузит новую версию, придёт SMS и работа появится здесь.')}`;
+  }
+  const w = byId(id);
+  if (!w || !w.review) return emptyState('repeat','Работа не найдена','', `<button type="button" class="btn btn--primary" data-act="nav" data-v="recheck">К списку</button>`);
+  const rm = w.review.remarks, decided = rm.filter(r => r.fixed !== null).length, allFixed = rm.every(r => r.fixed === true), anyNo = rm.some(r => r.fixed === false);
+  const ro = w.status !== 'recheck';
+  return `${backBtn('recheck','Повторная проверка')}
+  <div class="page-head"><div><h1>Повторная проверка</h1><p class="rhead"><span class="code">${w.id}</span><span>${esc(w.title)}</span><span>версия ${w.version}</span></p></div>${ro ? chip(w.status) : ''}</div>
+  <div class="stack">${rm.map((r, i) => `<div class="remark"><div class="remark__head"><span class="remark__n">Замечание ${r.n}</span><span class="remark__sum">${som(r.sum)}</span></div>
+    <p>${esc(r.text)}</p>
+    <div class="panel stack-s"><span class="label">Ответ автора</span><p style="font-size:15px">${esc(r.resp || 'Ответа нет')}</p>
+      ${r.diff ? `<div class="diff"><div class="diff__row"><span class="label">Было</span><span class="diff__was"><s>${esc(r.diff.was)}</s></span></div><div class="diff__row"><span class="label">Стало</span><span><span class="hl">${esc(r.diff.now)}</span></span></div></div>` : ''}</div>
+    <div class="pair" role="group" aria-label="Замечание ${r.n}"><button type="button" class="yes" data-act="fix" data-i="${i}" data-v="1" aria-pressed="${r.fixed === true}"${ro ? ' disabled' : ''}>Исправлено</button><button type="button" class="no" data-act="fix" data-i="${i}" data-v="0" aria-pressed="${r.fixed === false}"${ro ? ' disabled' : ''}>Не исправлено</button></div></div>`).join('')}
+  ${ro ? '' : `<div class="win"><div class="win__body actions" style="justify-content:space-between"><span class="help" aria-live="polite">Отмечено ${decided} из ${rm.length}${allFixed ? '. Все замечания исправлены.' : ''}</span>
+    <div class="actions"><button type="button" class="btn btn--ghost" data-act="returnBack"${decided === rm.length && anyNo ? '' : ' disabled'}>Вернуть на доработку</button><button type="button" class="btn btn--primary" data-act="approve"${allFixed ? '' : ' disabled'}>Одобрить</button></div></div></div>`}</div>`;
+}
+function vInvoices(){
+  const lines = S.inv.filter(i => i.r === ME_R).sort((a, b) => b.date.localeCompare(a.date));
+  const wait = lines.filter(i => i.st === 'wait').reduce((s, i) => s + i.sum, 0), paid = lines.filter(i => i.st === 'paid').reduce((s, i) => s + i.sum, 0);
+  return `<div class="page-head"><div><h1>Счета</h1><p class="sub">Каждое замечание из анкеты становится строкой счёта. Суммы условные.</p></div><button type="button" class="btn btn--ghost" data-act="act">${icon('download')}Скачать акт</button></div>
+  <div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="stat"><span class="stat__v">${som(wait)}</span><span class="stat__t">Ожидает оплаты</span></div><div class="stat"><span class="stat__v">${som(paid)}</span><span class="stat__t">Оплачено</span></div><div class="stat"><span class="stat__v">${lines.length}</span><span class="stat__t">${plural(lines.length,'Строка','Строки','Строк')} в счёте</span></div></div>
+  ${lines.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Шифр</th><th>Замечание</th><th>Дата</th><th class="num">Сумма</th><th>Статус</th></tr></thead><tbody>${lines.map(i => `<tr><td data-label="Шифр"><span class="code">${i.code}</span></td><td data-label="Замечание">№ ${i.n}</td><td data-label="Дата"><span class="mono">${fmt(i.date)}</span></td><td data-label="Сумма" class="num">${som(i.sum)}</td><td data-label="Статус">${i.st === 'paid' ? `<span class="chip chip--ok">${icon('check')}Оплачено</span>` : '<span class="chip chip--attn">Ожидает</span>'}</td></tr>`).join('')}</tbody>
+  <tfoot><tr><td colspan="3" class="nolabel">Итого</td><td class="num" data-label="Сумма">${som(wait + paid)}</td><td class="nolabel"></td></tr></tfoot></table></div>`
+  : emptyState('receipt','Счетов пока нет','Строки появятся после отправки первой рецензии с замечаниями.')}`;
+}
+function vRProfile(){
+  const me = R[ME_R], p = S.rprofile, e = S.rprofErr;
+  const avail = UDK.filter(u => !me.udk.includes(u.code));
+  const f = (k, label, hint) => `<div class="field${e[k] ? ' bad' : ''}"><label for="rp-${k}">${label}</label><input type="text" id="rp-${k}" data-in="rprof" data-k="${k}" value="${esc(p[k])}" inputmode="${k === 'bank' ? 'text' : 'numeric'}" autocomplete="off">${hint ? `<span class="help">${hint}</span>` : ''}${e[k] ? `<span class="err">${e[k]}</span>` : ''}</div>`;
+  return `<div class="page-head"><div><h1>Профиль рецензента</h1><p class="sub">${esc(me.name)}. Автор видит вас как «Рецензент №N».</p></div></div>
+  <div class="stack"><section class="win" aria-labelledby="sp-h"><div class="win__head"><h2 id="sp-h">Специализации по УДК</h2><span class="help">По ним приходят работы</span></div><div class="win__body stack-s">
+    <ul class="actions" aria-label="Выбранные УДК">${me.udk.map(c => `<li class="kwchip"><span class="code">${c}</span>&nbsp;${esc(udkName(c))}<button type="button" data-act="udkDel" data-c="${c}" aria-label="Убрать УДК ${c}">${icon('x')}</button></li>`).join('') || '<li class="help">Не выбрано ни одного раздела. Работы не будут приходить.</li>'}</ul>
+    <div class="actions" style="align-items:flex-end"><div class="field" style="flex:1 1 280px"><label for="udkAdd">Добавить раздел</label><select id="udkAdd">${avail.map(u => `<option value="${u.code}">${u.code} ${esc(u.name)}</option>`).join('')}</select></div><button type="button" class="btn btn--ghost" data-act="udkAdd"${avail.length ? '' : ' disabled'}>Добавить</button></div></div></section>
+  <section class="win" aria-labelledby="rq-h"><div class="win__head"><h2 id="rq-h">Реквизиты для оплаты</h2><span class="help">Видит только бухгалтерия редакции</span></div><div class="win__body stack"><div class="grid2">
+    ${f('bank','Банк')}${f('bik','БИК','6 цифр')}${f('account','Расчётный счёт','16 цифр')}${f('inn','ИНН','14 цифр')}</div>
+    <div><button type="button" class="btn btn--primary" data-act="saveRProfile">Сохранить</button></div></div></section></div>`;
+}
+
+/* ================= EDITOR ================= */
+function vPanel(){
+  const keys = Object.keys(ST);
+  const list = (S.efilter === 'all' ? S.works : S.works.filter(w => w.status === S.efilter)).slice().sort((a, b) => b.updated.localeCompare(a.updated));
+  return `<div class="page-head"><div><h1>Панель редактора</h1><p class="sub">Все работы журнала. Нажмите на счётчик, чтобы отфильтровать таблицу.</p></div>${S.efilter !== 'all' ? `<button type="button" class="btn btn--ghost btn--sm" data-act="efilter" data-f="all">Показать все</button>` : ''}</div>
+  <div class="stats">${keys.map(k => `<button type="button" class="stat" data-act="efilter" data-f="${k}" aria-pressed="${S.efilter === k}"><span class="stat__v">${S.works.filter(w => w.status === k).length}</span><span class="stat__t">${ST[k]}</span></button>`).join('')}</div>
+  <div class="notice" style="margin-bottom:16px">${icon('lock')}<span>Редакция видит и авторов, и рецензентов. Авторы и рецензенты друг друга не видят.</span></div>
+  ${list.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Шифр</th><th>Название</th><th>Автор</th><th>Рецензенты</th><th>Статус</th><th><span class="sr">Действие</span></th></tr></thead><tbody>${list.map(w => `<tr>
+    <td data-label="Шифр"><span class="code">${w.id}</span><br><span class="help">УДК ${w.udk}</span></td><td data-label="Название"><span class="od-clamp-2" style="max-width:340px">${esc(w.title)}</span></td><td data-label="Автор">${esc(w.author)}</td>
+    <td data-label="Рецензенты">${w.reviewers.length ? w.reviewers.map((r, i) => `<span style="display:block">№${i + 1} ${R[r].short}</span>`).join('') : '<span class="muted">не назначены</span>'}</td><td data-label="Статус">${chip(w.status)}</td>
+    <td class="nolabel">${w.status === 'review' ? `<button type="button" class="btn btn--sm ${w.reviewers.length ? 'btn--ghost' : 'btn--primary'}" data-act="assign" data-id="${w.id}">${w.reviewers.length ? 'Изменить' : 'Назначить рецензента'}</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`
+  : emptyState('grid', `Нет работ со статусом «${ST[S.efilter]}»`, 'Выберите другой счётчик или покажите все работы.', `<button type="button" class="btn btn--ghost" data-act="efilter" data-f="all">Показать все</button>`)}`;
+}
+function renderAssign(){
+  const a = S.assign, w = byId(a.id);
+  const all = Object.keys(R), match = all.filter(k => R[k].udk.includes(w.udk)), other = all.filter(k => !match.includes(k));
+  const row = k => `<label class="pick"><input type="checkbox" data-in="asg" value="${k}"${a.sel.has(k) ? ' checked' : ''}><span class="pick__box">${icon('check')}</span><span><span class="pick__name">${R[k].name}</span><span class="pick__meta">УДК ${R[k].udk.join(', ')} · в работе ${load(k)}</span></span></label>`;
+  $('#dlg').innerHTML = `<div class="dlg__head"><div><h2 id="dlgTitle">Назначить рецензентов</h2><p class="help"><span class="code">${w.id}</span> · УДК ${w.udk} ${esc(udkName(w.udk))}</p></div><button type="button" class="icon-btn" data-act="dlgClose" aria-label="Закрыть">${icon('x')}</button></div>
+  <div class="dlg__body"><p class="help">Не больше двух. Автор увидит только «Рецензент №1» и «Рецензент №2».</p>
+    <fieldset><legend>Подходят по УДК ${w.udk}</legend>${match.length ? match.map(row).join('') : '<p class="help">Нет рецензентов с этим УДК.</p>'}</fieldset>
+    <fieldset><legend>Другие рецензенты</legend>${other.map(row).join('')}</fieldset>
+    <p class="err" id="asgErr" role="alert"${a.err ? '' : ' hidden'}>${esc(a.err)}</p></div>
+  <div class="dlg__foot"><button type="button" class="btn btn--ghost" data-act="dlgClose">Отмена</button><button type="button" class="btn btn--primary" data-act="doAssign">Назначить</button></div>`;
+}
+function vDoi(){
+  const list = S.works.filter(w => ['approved','doi'].includes(w.status));
+  const printed = S.works.filter(w => w.status === 'print');
+  return `<div class="page-head"><div><h1>DOI и печать</h1><p class="sub">Одобренные работы. Префикс DOI в примере условный: 10.xxxxx.</p></div></div>
+  <div class="stack">${list.length ? list.map(w => { const num = w.id.split('-').pop(), yr = w.id.split('-')[1]; const err = (S.doiErr || {})[w.id];
+    return `<section class="win" aria-labelledby="d-${num}"><div class="win__head"><div><span class="code">${w.id}</span><h2 id="d-${num}" style="margin-top:2px">${esc(w.title)}</h2><p class="help">${esc(w.author)} · ${w.type} · УДК ${w.udk}</p></div>${chip(w.status)}</div>
+    <div class="win__body">${w.status === 'approved' ? `<div class="grid2" style="grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr)">
+      <div class="field${err ? ' bad' : ''}"><label for="doi-${num}">DOI</label><input type="text" id="doi-${num}" class="mono" value="10.xxxxx/jn.${yr}.${num}" spellcheck="false" autocomplete="off">${err ? `<span class="err">${err}</span>` : '<span class="help">Формат: 10.префикс/суффикс</span>'}</div>
+      <div class="field"><label for="iss-${num}">Выпуск</label><select id="iss-${num}"><option>№ 4, 2026</option><option>№ 1, 2027</option></select></div>
+      <div class="field"><label for="vol-${num}">Том</label><select id="vol-${num}"><option>том 12</option><option>том 13</option></select></div></div>
+      <div class="actions" style="margin-top:16px"><button type="button" class="btn btn--primary" data-act="doi" data-id="${w.id}">Присвоить DOI</button><button type="button" class="btn btn--ghost" disabled>Отправить в печать</button></div>`
+    : `<dl class="sum-list"><div><dt>DOI</dt><dd class="code">${esc(w.doi)}</dd></div><div><dt>Выпуск</dt><dd>${esc(w.issue)}</dd></div></dl><div class="actions" style="margin-top:16px"><button type="button" class="btn btn--primary" data-act="print" data-id="${w.id}">${icon('print')}Отправить в печать</button></div>`}</div></section>`; }).join('')
+  : emptyState('print','Одобренных работ нет','Работы появятся здесь после одобрения рецензентами.')}
+  ${printed.length ? `<section><h2 style="margin-bottom:12px">В печати</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Шифр</th><th>Название</th><th>DOI</th><th>Выпуск</th></tr></thead><tbody>${printed.map(w => `<tr><td data-label="Шифр"><span class="code">${w.id}</span></td><td data-label="Название">${esc(w.title)}</td><td data-label="DOI"><span class="code">${esc(w.doi)}</span></td><td data-label="Выпуск">${esc(w.issue)}</td></tr>`).join('')}</tbody></table></div></section>` : ''}</div>`;
+}
+function vEInv(){
+  const wait = S.inv.filter(i => i.st === 'wait');
+  const groups = Object.keys(R).map(r => [r, wait.filter(i => i.r === r)]).filter(g => g[1].length);
+  const paidTotal = S.inv.filter(i => i.st === 'paid').reduce((s, i) => s + i.sum, 0);
+  const n = S.invSel.size;
+  return `<div class="page-head"><div><h1>Счета рецензентам</h1><p class="sub">Подтвердите строки к оплате. Ставка за замечание условная.</p></div>
+    <button type="button" class="btn btn--primary" data-act="invApproveSel" id="invSelBtn"${n ? '' : ' disabled'}>Подтвердить выбранные (${n})</button></div>
+  <div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="stat"><span class="stat__v">${som(wait.reduce((s, i) => s + i.sum, 0))}</span><span class="stat__t">Ожидает подтверждения</span></div><div class="stat"><span class="stat__v">${wait.length}</span><span class="stat__t">${plural(wait.length,'Строка','Строки','Строк')} к оплате</span></div><div class="stat"><span class="stat__v">${som(paidTotal)}</span><span class="stat__t">Оплачено всего</span></div></div>
+  ${groups.length ? `<div class="stack">${groups.map(([r, lines]) => `<section class="win" aria-labelledby="g-${r}"><div class="win__head"><h2 id="g-${r}">${R[r].name}</h2><span class="mono">${som(lines.reduce((s, i) => s + i.sum, 0))}</span></div>
+    <div class="tbl-wrap" style="border:0;border-radius:0 0 12px 12px"><table class="tbl"><thead><tr><th><span class="sr">Выбрать</span></th><th>Шифр</th><th>Замечание</th><th>Дата</th><th class="num">Сумма</th><th><span class="sr">Действие</span></th></tr></thead><tbody>${lines.map(i => `<tr>
+      <td class="nolabel"><label class="pick" style="margin:0;padding:4px"><input type="checkbox" data-in="invsel" value="${i.id}"${S.invSel.has(i.id) ? ' checked' : ''} aria-label="Выбрать строку ${i.code}, замечание ${i.n}"><span class="pick__box">${icon('check')}</span></label></td>
+      <td data-label="Шифр"><span class="code">${i.code}</span></td><td data-label="Замечание">№ ${i.n}</td><td data-label="Дата"><span class="mono">${fmt(i.date)}</span></td><td data-label="Сумма" class="num">${som(i.sum)}</td>
+      <td class="nolabel"><button type="button" class="btn btn--ghost btn--sm" data-act="invApprove" data-id="${i.id}">Подтвердить</button></td></tr>`).join('')}</tbody></table></div></section>`).join('')}</div>`
+  : emptyState('receipt','Все счета подтверждены','Новые строки появятся, когда рецензенты отправят замечания.')}`;
+}
+function vbars(data, label){
+  const W = 640, H = 260, px = 24, bw = 64, base = H - 32, top = 36;
+  const max = Math.max.apply(null, data.map(d => d[1])), gap = (W - px * 2 - bw * data.length) / (data.length - 1);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}"><line class="axis" x1="${px}" x2="${W - px}" y1="${base}" y2="${base}"/>${data.map((d, i) => { const h = Math.round((base - top) * d[1] / max), x = px + i * (bw + gap), y = base - h; return `<rect class="${i === data.length - 1 ? 'b-acc' : 'b-ink'}" x="${x}" y="${y}" width="${bw}" height="${h}" rx="4"/><text class="val" x="${x + bw / 2}" y="${y - 8}" text-anchor="middle">${d[1]}</text><text x="${x + bw / 2}" y="${H - 10}" text-anchor="middle">${d[0]}</text>`; }).join('')}</svg>`;
+}
+function hbars(rows, label){
+  const max = Math.max.apply(null, rows.map(r => r[1]));
+  return `<ul class="hb" aria-label="${esc(label)}">${rows.map(([t, v, code]) => `<li class="hb__row"><span class="hb__t">${code ? `<span class="code">${code}</span>` : ''}<span class="hb__name">${esc(t)}</span></span><span class="hb__bar" aria-hidden="true"><i style="--w:${(v / max).toFixed(3)}"></i></span><span class="hb__v mono">${v}</span></li>`).join('')}</ul>`;
+}
+function vAnalytics(){
+  const years = [['2021',38],['2022',51],['2023',64],['2024',79],['2025',93],['2026',71]];
+  const top = [['Эрозия почв предгорий Таласского хребта',27,'ЖН-2023-0211'],['Цифровая грамотность студентов первого курса',22,'ЖН-2024-0058'],['Хранение данных научных журналов в облаке',17,'ЖН-2025-0412'],['Модели спроса на электроэнергию в Бишкеке',15,'ЖН-2023-0187'],['Корпусная разметка лексики кыргызского эпоса',12,'ЖН-2024-0133']];
+  const udk = [['004 Информатика',112],['63 Сельское хозяйство',86],['33 Экономика',66],['37 Образование',57],['51 Математика',41],['55 Науки о Земле',34]];
+  return `<div class="page-head"><div><h1>Аналитика цитирований</h1><p class="sub">Пример данных. После подключения источника цифры будут обновляться автоматически.</p></div></div>
+  <div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="stat"><span class="stat__v">396</span><span class="stat__t">Цитирований за 2021–2026</span></div><div class="stat"><span class="stat__v">71</span><span class="stat__t">За 2026 год, на 20 ноября</span></div><div class="stat"><span class="stat__v">27</span><span class="stat__t">Максимум у одной статьи</span></div></div>
+  <div class="stack"><section class="win" aria-labelledby="c1"><div class="win__head"><h2 id="c1">Цитирования по годам</h2><span class="help">2026 год неполный</span></div><div class="win__body">${vbars(years, 'Цитирования по годам: ' + years.map(y => y[0] + ' ' + y[1]).join(', '))}</div></section>
+  <div class="grid2"><section class="win" aria-labelledby="c2"><div class="win__head"><h2 id="c2">Самые цитируемые статьи</h2></div><div class="win__body">${hbars(top, 'Самые цитируемые статьи')}</div></section>
+  <section class="win" aria-labelledby="c3"><div class="win__head"><h2 id="c3">По разделам УДК</h2></div><div class="win__body">${hbars(udk.map(u => [u[0], u[1]]), 'Цитирования по разделам УДК')}</div></section></div></div>`;
+}
+
+const VIEWS = { works:vWorks, new:vNew, report:vReport, card:vCard, profile:vProfile, inbox:vInbox, review:vReview, recheck:vRecheck, invoices:vInvoices, rprofile:vRProfile, panel:vPanel, doi:vDoi, einv:vEInv, analytics:vAnalytics };
+
+/* ---------- toast ---------- */
+function toast(t){
+  const el = document.createElement('div'); el.className = 'toast'; el.innerHTML = icon('check') + `<span>${esc(t)}</span>`;
+  $('#toasts').appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 180); }, 3800);
+}
+
+/* ---------- dialog ---------- */
+const dlg = $('#dlg'); let dlgOpener = null;
+function closeDlg(){ if (dlg.open) dlg.close(); }
+dlg.addEventListener('close', () => { S.assign = null; if (dlgOpener && dlgOpener.isConnected) dlgOpener.focus(); else { const h = main.querySelector('h1'); if (h) h.focus(); } });
+dlg.addEventListener('click', e => { if (e.target === dlg) closeDlg(); });
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el){ if (!$('#notifPanel').hidden && !e.target.closest('.notif')) setNotif(false); return; }
+  const a = el.dataset.act, d = el.dataset;
+  switch (a){
+    case 'role': S.role = d.role; setNotif(false); render(true); break;
+    case 'nav': if (d.v === 'new' && S.wiz.running) break; go(d.v); break;
+    case 'open': go(d.v, d.id); break;
+    case 'filter': S.filter = d.f; refresh(`[data-act="filter"][data-f="${d.f}"]`); break;
+    case 'rfilter': S.rfilter = d.f; refresh(`[data-act="rfilter"][data-f="${d.f}"]`); break;
+    case 'efilter': S.efilter = d.f; refresh(`[data-act="efilter"][data-f="${d.f}"]`); break;
+    case 'bell': setNotif($('#notifPanel').hidden); break;
+    case 'readAll': S.notes[S.role].forEach(n => n.unread = false); renderChrome(); renderNotes(); $('#bellBtn').focus(); break;
+    case 'note': { const n = S.notes[S.role][+d.i]; n.unread = false; if (n.link) go(n.link.v, n.link.id); else renderChrome(); break; }
+    /* wizard */
+    case 'wnext': { const err = wValidate(); S.wiz.err = err; if (err){ refresh('#wErr'); break; } S.wiz.step++; S.wiz.reached = Math.max(S.wiz.reached, S.wiz.step); refresh(); const h = main.querySelector('.win h2'); if (h){ h.tabIndex = -1; h.focus(); } break; }
+    case 'wprev': S.wiz.err = ''; S.wiz.step = Math.max(0, S.wiz.step - 1); refresh(`[data-act="wstep"][data-s="${S.wiz.step}"]`); break;
+    case 'wstep': S.wiz.err = ''; S.wiz.step = +d.s; refresh(`[data-act="wstep"][data-s="${d.s}"]`); break;
+    case 'ltab': S.wiz.lang = d.l; refresh(`#lt-${d.l}`); break;
+    case 'sample': LANGS.forEach(l => { S.wiz.meta[l] = { title:SAMPLE[l].title, abs:sampleText(l), kw:SAMPLE[l].kw.slice() }; }); S.wiz.err = ''; refresh('#m-title'); toast('Метаданные заполнены примером. Аннотация EN короче нормы'); break;
+    case 'kwdel': S.wiz.meta[S.wiz.lang].kw.splice(+d.i, 1); $('#kwChips').innerHTML = kwChips(); $('#kwErr').hidden = true; updateMeta(); $('#m-kw').focus(); break;
+    case 'udk': S.wiz.udk = d.code; S.wiz.err = ''; refresh(`[data-act="udk"][data-code="${d.code}"]`); break;
+    case 'sampleFile': S.wiz.file = { name:'statya_avtoproverka.docx', size:'1,6 МБ' }; S.wiz.fileErr = ''; S.wiz.err = ''; refresh('[data-act="wnext"]'); break;
+    case 'runCheck': runCheck(); break;
+    case 'continue': { const w = byId(d.id); S.wiz = newWiz(); S.wiz.draftId = w.id; S.wiz.type = w.type; S.wiz.meta.ru.title = w.title; S.wiz.udk = w.udk; go('new'); break; }
+    /* report */
+    case 'fixUpload': { const w = byId(d.id); el.disabled = true; el.textContent = 'Проверка…';
+      setTimeout(() => { w.check = okCheck(w.id, w.udk); w.version++; w.status = 'review'; w.updated = TODAY; notify('editor', `${w.id} прошла автопроверку и ждёт назначения рецензентов`, {v:'panel'}); refresh(); const h = main.querySelector('h1'); if (h) h.focus(); toast('Автопроверка пройдена. Работа передана редакции'); }, reduce ? 200 : 1000); break; }
+    /* card */
+    case 'newVersion': { const w = byId(d.id); const bad = w.review.remarks.filter(r => r.resp.trim().length < 3).map(r => r.n);
+      S.respErr = new Set(bad); if (bad.length){ refresh(`#resp-${bad[0]}`); break; }
+      w.version++; w.status = 'recheck'; w.updated = TODAY; w.review.remarks.forEach(r => { r.diff = { was:r.quote || 'Фрагмент не указан', now:r.resp.trim() }; r.fixed = null; });
+      if (w.reviewers.includes(ME_R)) notify('reviewer', `Автор загрузил исправления по ${w.id}. Вам отправлено SMS`, { v:'recheck', id:w.id });
+      refresh(); const h = main.querySelector('h1'); if (h) h.focus(); toast('Рецензенту отправлено SMS и письмо'); break; }
+    case 'saveProfile': { const p = S.profile, er = {};
+      if (!p.fio.trim()) er.fio = 'Укажите ФИО.';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email.trim())) er.email = 'Проверьте адрес: нужен вид name@university.kg.';
+      if (!/^\+?[\d\s()-]{9,}$/.test(p.phone.trim())) er.phone = 'Укажите номер в формате +996 555 123 456.';
+      S.profErr = er; const k = Object.keys(er)[0]; refresh(k ? `#pf-${k}` : null); if (!k) toast('Профиль сохранён'); break; }
+    /* reviewer */
+    case 'frag': { const dr = draftFor(S.id.reviewer); dr.remarks.push({ text:'', quote:d.q }); updRemarks(); const t = $(`#rem-${dr.remarks.length - 1}`); if (t){ t.focus(); t.scrollIntoView({ block:'center', behavior:reduce ? 'auto' : 'smooth' }); } break; }
+    case 'remAdd': { const dr = draftFor(S.id.reviewer); dr.remarks.push({ text:'', quote:'' }); updRemarks(); $(`#rem-${dr.remarks.length - 1}`).focus(); break; }
+    case 'remDel': { const dr = draftFor(S.id.reviewer); dr.remarks.splice(+d.i, 1); updRemarks(); $('#remAddBtn').focus(); break; }
+    case 'jump': { const t = document.getElementById(d.id); if (t){ t.focus(); t.scrollIntoView({ block:'center' }); } break; }
+    case 'decide': decide(d.d); break;
+    case 'fix': { const w = byId(S.id.reviewer); w.review.remarks[+d.i].fixed = d.v === '1'; refresh(`[data-act="fix"][data-i="${d.i}"][data-v="${d.v}"]`); break; }
+    case 'approve': { const w = byId(S.id.reviewer); w.status = 'approved'; w.updated = TODAY; const n = revNo(w, ME_R);
+      if (w.mine) notify('author', `${w.id} одобрена Рецензентом №${n}`, { v:'card', id:w.id });
+      notify('editor', `${w.id} одобрена после повторной проверки, можно присвоить DOI`, { v:'doi' }); toast('Работа одобрена. Редакция получила уведомление'); go('recheck'); break; }
+    case 'returnBack': { const w = byId(S.id.reviewer); w.status = 'remarks'; w.updated = TODAY;
+      if (w.mine) notify('author', `${w.id}: часть замечаний не исправлена`, { v:'card', id:w.id }); toast('Работа возвращена автору на доработку'); go('recheck'); break; }
+    case 'act': { try { const lines = S.inv.filter(i => i.r === ME_R); const txt = 'Акт выполненных работ (пример)\n' + R[ME_R].name + '\n\n' + lines.map(i => `${i.code}, замечание ${i.n}, ${fmt(i.date)}: ${i.sum} сом`).join('\n') + `\n\nИтого: ${lines.reduce((s, i) => s + i.sum, 0)} сом`; const a2 = document.createElement('a'); a2.href = URL.createObjectURL(new Blob([txt], { type:'text/plain;charset=utf-8' })); a2.download = 'akt-recenzent-2026-11.txt'; document.body.appendChild(a2); a2.click(); a2.remove(); } catch (er) {} toast('Акт за ноябрь 2026 сформирован'); break; }
+    case 'udkDel': { const me = R[ME_R]; me.udk = me.udk.filter(c => c !== d.c); WHO.reviewer.role = 'рецензент, УДК ' + (me.udk.join(', ') || 'не выбраны'); refresh('#udkAdd'); break; }
+    case 'udkAdd': { const v = $('#udkAdd').value; if (v){ R[ME_R].udk.push(v); WHO.reviewer.role = 'рецензент, УДК ' + R[ME_R].udk.join(', '); refresh('#udkAdd'); toast(`Добавлен УДК ${v}`); } break; }
+    case 'saveRProfile': { const p = S.rprofile, er = {};
+      if (!p.bank.trim()) er.bank = 'Укажите банк.';
+      if (!/^\d{6}$/.test(p.bik.trim())) er.bik = 'БИК состоит из 6 цифр.';
+      if (!/^\d{16}$/.test(p.account.replace(/\s/g, ''))) er.account = 'Счёт состоит из 16 цифр.';
+      if (!/^\d{14}$/.test(p.inn.trim())) er.inn = 'ИНН состоит из 14 цифр.';
+      S.rprofErr = er; const k = Object.keys(er)[0]; refresh(k ? `#rp-${k}` : null); if (!k) toast('Реквизиты сохранены'); break; }
+    /* editor */
+    case 'assign': S.assign = { id:d.id, sel:new Set(byId(d.id).reviewers), err:'' }; dlgOpener = el; renderAssign(); dlg.showModal(); requestAnimationFrame(() => { const f = dlg.querySelector('input'); if (f) f.focus(); }); break;
+    case 'dlgClose': closeDlg(); break;
+    case 'doAssign': { const as = S.assign, w = byId(as.id);
+      if (!as.sel.size){ as.err = 'Выберите хотя бы одного рецензента.'; const er = $('#asgErr'); er.textContent = as.err; er.hidden = false; break; }
+      const was = w.reviewers.slice(); w.reviewers = Array.from(as.sel); w.deadline = '2026-12-04'; w.updated = TODAY;
+      if (w.reviewers.includes(ME_R) && !was.includes(ME_R)) notify('reviewer', `Новая работа по УДК ${w.udk}: ${w.id}`, { v:'review', id:w.id });
+      dlgOpener = null; closeDlg(); refresh(`[data-act="efilter"][data-f="${S.efilter}"]`); toast(`Рецензенты назначены: ${w.id}`); break; }
+    case 'doi': { const w = byId(d.id), num = w.id.split('-').pop(); const v = $(`#doi-${num}`).value.trim();
+      S.doiErr = S.doiErr || {};
+      if (!/^10\.[^\s\/]+\/\S+$/.test(v)){ S.doiErr[w.id] = 'DOI должен начинаться с 10. и содержать косую черту: 10.префикс/суффикс.'; refresh(`#doi-${num}`); break; }
+      delete S.doiErr[w.id]; w.doi = v; w.issue = `${$(`#iss-${num}`).value}, ${$(`#vol-${num}`).value}`; w.status = 'doi'; w.updated = TODAY;
+      if (w.mine) notify('author', `Работе ${w.id} присвоен DOI ${v}`, { v:'card', id:w.id });
+      refresh(`[data-act="print"][data-id="${w.id}"]`); toast(`DOI присвоен: ${v}`); break; }
+    case 'print': { const w = byId(d.id); w.status = 'print'; w.updated = TODAY; if (w.mine) notify('author', `${w.id} отправлена в печать`, { v:'card', id:w.id }); refresh(); const h = main.querySelector('h1'); if (h) h.focus(); toast(`${w.id} отправлена в печать`); break; }
+    case 'invApprove': { payInv([+d.id]); break; }
+    case 'invApproveSel': { payInv(Array.from(S.invSel)); break; }
+  }
+});
+function payInv(ids){
+  if (!ids.length) return;
+  const codes = new Set();
+  ids.forEach(id => { const i = S.inv.find(x => x.id === id); if (i){ i.st = 'paid'; codes.add(i.code); if (i.r === ME_R) notify('reviewer', `Строка счёта оплачена: ${i.code}, замечание ${i.n}`, { v:'invoices' }); } S.invSel.delete(id); });
+  refresh('#invSelBtn'); const b = $('#invSelBtn'); if (b && b.disabled){ const h = main.querySelector('h1'); if (h) h.focus(); }
+  toast(`Подтверждено строк: ${ids.length}`);
+}
+function updRemarks(){ const dr = draftFor(S.id.reviewer); $('#remarks').innerHTML = remarksHTML(dr); $('#remTotal').innerHTML = remTotal(dr); }
+
+document.addEventListener('input', e => {
+  const t = e.target, k = t.dataset.in; if (!k) return;
+  const z = S.wiz;
+  switch (k){
+    case 'title': z.meta[z.lang].title = t.value; updateMeta(); break;
+    case 'abs': z.meta[z.lang].abs = t.value; updateMeta(); break;
+    case 'kw': if (t.value.includes(',')) addKw(t); break;
+    case 'udkq': z.udkq = t.value; $('#udkList').innerHTML = udkOptions(); break;
+    case 'rcom': draftFor(S.id.reviewer).comments[t.dataset.k] = t.value; break;
+    case 'rem': draftFor(S.id.reviewer).remarks[+t.dataset.i].text = t.value; break;
+    case 'resp': { const w = byId(S.id.author); const r = w.review.remarks.find(x => x.n === +t.dataset.n); r.resp = t.value; break; }
+    case 'prof': S.profile[t.dataset.k] = t.value; break;
+    case 'rprof': S.rprofile[t.dataset.k] = t.value; break;
+  }
+});
+document.addEventListener('change', e => {
+  const t = e.target, k = t.dataset.in;
+  if (t.id === 'roleSel'){ S.role = t.value; render(true); return; }
+  if (!k) return;
+  switch (k){
+    case 'wtype': S.wiz.type = t.value; break;
+    case 'textLang': S.wiz.textLang = t.value; updateMeta(); break;
+    case 'file': handleFile(t.files && t.files[0]); break;
+    case 'rate': { const dr = draftFor(S.id.reviewer); dr.ratings[t.dataset.k] = +t.value; if (S.revErrs.length){ S.revErrs = S.revErrs.filter(x => !x.id.startsWith(`rate-${t.dataset.k}-`)); } break; }
+    case 'plang': { const p = S.profile; p.langs = t.checked ? p.langs.concat(t.value) : p.langs.filter(l => l !== t.value); break; }
+    case 'invsel': { const id = +t.value; if (t.checked) S.invSel.add(id); else S.invSel.delete(id); const b = $('#invSelBtn'); b.disabled = !S.invSel.size; b.textContent = `Подтвердить выбранные (${S.invSel.size})`; break; }
+    case 'asg': { const as = S.assign, er = $('#asgErr');
+      if (t.checked && as.sel.size >= 2){ t.checked = false; as.err = 'Можно выбрать не больше двух рецензентов.'; er.textContent = as.err; er.hidden = false; break; }
+      if (t.checked) as.sel.add(t.value); else as.sel.delete(t.value); as.err = ''; er.hidden = true; break; }
+  }
+});
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  if (e.key === 'Escape' && !$('#notifPanel').hidden){ setNotif(false); $('#bellBtn').focus(); return; }
+  if (t.dataset && t.dataset.in === 'kw'){
+    if (e.key === 'Enter'){ e.preventDefault(); addKw(t); }
+    else if (e.key === 'Backspace' && !t.value){ const arr = S.wiz.meta[S.wiz.lang].kw; if (arr.length){ arr.pop(); $('#kwChips').innerHTML = kwChips(); updateMeta(); } }
+    return;
+  }
+  if (t.getAttribute && t.getAttribute('role') === 'tab' && t.dataset.act === 'ltab'){
+    const i = LANGS.indexOf(t.dataset.l); let j = null;
+    if (e.key === 'ArrowRight') j = (i + 1) % 3; if (e.key === 'ArrowLeft') j = (i + 2) % 3;
+    if (j !== null){ e.preventDefault(); S.wiz.lang = LANGS[j]; refresh(`#lt-${LANGS[j]}`); }
+  }
+});
+/* drag and drop for the upload zone */
+document.addEventListener('dragover', e => { const dz = e.target.closest && e.target.closest('#drop'); if (dz){ e.preventDefault(); dz.classList.add('over'); } });
+document.addEventListener('dragleave', e => { const dz = e.target.closest && e.target.closest('#drop'); if (dz) dz.classList.remove('over'); });
+document.addEventListener('drop', e => { const dz = e.target.closest && e.target.closest('#drop'); if (dz){ e.preventDefault(); dz.classList.remove('over'); handleFile(e.dataTransfer.files[0]); } });
+
+render(false);
+})();
+</script>
+</body>
+</html>
