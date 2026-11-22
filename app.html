@@ -272,8 +272,9 @@ h3{font-weight:500;font-size:16px;line-height:1.35}
 .kwchip .od-icon{--od-icon-size:12px}
 .kw input{flex:1 1 160px;min-width:140px;height:32px;border:0;padding:0 4px;outline:none;font-size:15px;background:none}
 .udk-list{display:grid;gap:4px;max-height:320px;overflow:auto;margin-top:8px;padding:4px;border:1px solid var(--line);border-radius:var(--r-s)}
-.udk-opt{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:center;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:6px;background:none;text-align:left;font-size:14px}
+.udk-opt{display:grid;grid-template-columns:112px minmax(0,1fr);gap:12px;align-items:center;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:6px;background:none;text-align:left;font-size:14px}
 .udk-opt:hover,.udk-opt:focus-visible{background:var(--surface)}
+.udk-list .code{white-space:nowrap}
 .udk-opt[aria-pressed="true"]{background:var(--accent-tint);color:var(--ink)}
 .drop{display:grid;justify-items:center;gap:8px;padding:40px 20px;border:1.5px dashed var(--line-2);border-radius:var(--r-m);text-align:center;color:var(--ink-2);cursor:pointer;transition:border-color var(--t-fast),background-color var(--t-fast)}
 .drop .od-icon{--od-icon-size:28px;color:var(--accent)}
@@ -626,7 +627,7 @@ const S = {
   rprofile:{ bank:'ОАО «Банк» (пример)', bik:'109018', account:'1090000123456789', inn:'21204198700123' },
   rprofErr:{},
   works:[
-    { id:'ЖН-2026-0147', mine:true, author:'Курманбаев Т. М.', title:'Методы автоматической проверки структуры научных текстов', type:'Статья', udk:'004.8', version:3, status:'remarks', updated:'2026-11-19', deadline:'2026-12-04', reviewers:['r1','r2'], check:okCheck('ЖН-2026-0147','004.8'),
+    { id:'2026-UDK004-0147', mine:true, author:'Курманбаев Т. М.', title:'Методы автоматической проверки структуры научных текстов', type:'Статья', udk:'004.8', version:3, status:'remarks', updated:'2026-11-19', deadline:'2026-12-04', reviewers:['r1','r2'], check:okCheck('2026-UDK004-0147','004.8'),
       review:{ by:'r1', date:'2026-11-19', ratings:{akt:4,nov:3,met:3,gost:2},
         comments:{ akt:'Тема важна для редакций вузовских журналов.', nov:'Новизна описана в общих словах, нужно сравнение с существующими системами.', met:'Не указан объём выборки и способ её формирования.', gost:'Две записи в списке литературы оформлены не по ГОСТ.' },
         remarks:[
@@ -634,49 +635,49 @@ const S = {
           { n:2, text:'На рисунке 3 нет подписей осей и единиц измерения.', quote:'Рисунок 3. Распределение ошибок оформления', sum:RATE, resp:'', fixed:null },
           { n:3, text:'Источник 7 старше пяти лет, замените его на публикацию 2021 года или новее.', quote:'Иванов П. С. Анализ структуры текстов // Вестник. 2017.', sum:RATE, resp:'', fixed:null }
         ] } },
-    { id:'ЖН-2026-0098', mine:true, author:'Курманбаев Т. М.', title:'Электронная редакция как сервис университета', type:'Доклад', udk:'004.9', version:1, status:'review', updated:'2026-11-12', deadline:'2026-11-30', reviewers:['r3'], check:okCheck('ЖН-2026-0098','004.9'), review:null },
-    { id:'ЖН-2026-0114', mine:true, author:'Курманбаев Т. М.', title:'Классификация научных текстов по рубрикам УДК', type:'Статья', udk:'004.8', version:2, status:'fix', updated:'2026-11-17', deadline:null, reviewers:[],
-      check:{ abs:{ru:312,kg:268,en:214}, kw:{ru:7,kg:4,en:7}, titleOk:true, refs:12, gost:GOST_ERR.slice(), old:OLD_SRC.slice(), udk:'004.8', sections:[], code:'ЖН-2026-0114' }, review:null },
-    { id:'ЖН-2026-0161', mine:true, author:'Курманбаев Т. М.', title:'Метрики качества рецензирования в вузовских журналах', type:'Статья', udk:'004.8', version:0, status:'draft', updated:'2026-11-20', deadline:null, reviewers:[], check:null, review:null },
-    { id:'ЖН-2025-0412', mine:true, author:'Курманбаев Т. М.', title:'Хранение данных научных журналов в облаке', type:'Статья', udk:'004.6', version:2, status:'print', updated:'2026-11-12', deadline:null, reviewers:['r3','r1'], doi:'10.xxxxx/jn.2025.0412', issue:'№ 4, 2026, том 12', check:okCheck('ЖН-2025-0412','004.6'),
+    { id:'2026-UDK004-0098', mine:true, author:'Курманбаев Т. М.', title:'Электронная редакция как сервис университета', type:'Доклад', udk:'004.9', version:1, status:'review', updated:'2026-11-12', deadline:'2026-11-30', reviewers:['r3'], check:okCheck('2026-UDK004-0098','004.9'), review:null },
+    { id:'2026-UDK004-0114', mine:true, author:'Курманбаев Т. М.', title:'Классификация научных текстов по рубрикам УДК', type:'Статья', udk:'004.8', version:2, status:'fix', updated:'2026-11-17', deadline:null, reviewers:[],
+      check:{ abs:{ru:312,kg:268,en:214}, kw:{ru:7,kg:4,en:7}, titleOk:true, refs:12, gost:GOST_ERR.slice(), old:OLD_SRC.slice(), udk:'004.8', sections:[], code:'2026-UDK004-0114' }, review:null },
+    { id:'2026-UDK004-0161', mine:true, author:'Курманбаев Т. М.', title:'Метрики качества рецензирования в вузовских журналах', type:'Статья', udk:'004.8', version:0, status:'draft', updated:'2026-11-20', deadline:null, reviewers:[], check:null, review:null },
+    { id:'2025-UDK004-0412', mine:true, author:'Курманбаев Т. М.', title:'Хранение данных научных журналов в облаке', type:'Статья', udk:'004.6', version:2, status:'print', updated:'2026-11-12', deadline:null, reviewers:['r3','r1'], doi:'10.xxxxx/jn.2025.0412', issue:'№ 4, 2026, том 12', check:okCheck('2025-UDK004-0412','004.6'),
       review:{ by:'r1', date:'2026-10-14', ratings:{akt:5,nov:4,met:4,gost:4}, comments:{akt:'Актуально.',nov:'Есть сравнение с аналогами.',met:'Методика описана полно.',gost:'Одна запись требовала правки.'},
         remarks:[ { n:1, text:'В таблице 2 нет единиц измерения объёма данных.', quote:'Таблица 2. Объём хранимых данных', sum:RATE, resp:'Добавлены единицы: ГБ.', fixed:true, diff:{ was:'Таблица 2. Объём хранимых данных', now:'Таблица 2. Объём хранимых данных, ГБ' } } ] } },
-    { id:'ЖН-2026-0152', mine:false, author:'Асылбекова Н. Т.', title:'Нейросетевая классификация спутниковых снимков пастбищ', type:'Статья', udk:'004.8', version:1, status:'review', updated:'2026-11-18', deadline:'2026-12-02', reviewers:['r1'], check:okCheck('ЖН-2026-0152','004.8'), review:null },
-    { id:'ЖН-2026-0139', mine:false, author:'Токтогулов Э. А.', title:'Защищённый обмен файлами между кафедрами', type:'Доклад', udk:'004.7', version:2, status:'recheck', updated:'2026-11-20', deadline:'2026-11-27', reviewers:['r1'], check:okCheck('ЖН-2026-0139','004.7'),
+    { id:'2026-UDK004-0152', mine:false, author:'Асылбекова Н. Т.', title:'Нейросетевая классификация спутниковых снимков пастбищ', type:'Статья', udk:'004.8', version:1, status:'review', updated:'2026-11-18', deadline:'2026-12-02', reviewers:['r1'], check:okCheck('2026-UDK004-0152','004.8'), review:null },
+    { id:'2026-UDK004-0139', mine:false, author:'Токтогулов Э. А.', title:'Защищённый обмен файлами между кафедрами', type:'Доклад', udk:'004.7', version:2, status:'recheck', updated:'2026-11-20', deadline:'2026-11-27', reviewers:['r1'], check:okCheck('2026-UDK004-0139','004.7'),
       review:{ by:'r1', date:'2026-11-03', ratings:{akt:4,nov:4,met:3,gost:4}, comments:{akt:'Тема актуальна для вузов.',nov:'Новизна в схеме распределения ключей.',met:'Не хватает модели угроз.',gost:'Замечаний нет.'},
         remarks:[
           { n:1, text:'Не описана модель угроз.', quote:'Обмен файлами защищён шифрованием.', sum:RATE, resp:'Добавлен раздел 2.3 с моделью угроз и таблицей рисков.', fixed:null, diff:{ was:'Обмен файлами защищён шифрованием.', now:'Обмен файлами защищён шифрованием TLS 1.3. Модель угроз приведена в разделе 2.3.' } },
           { n:2, text:'В выводах нет ограничений исследования.', quote:'Предложенная схема подходит для всех вузов.', sum:RATE, resp:'Добавлен абзац об ограничениях: схема проверена на двух кафедрах.', fixed:null, diff:{ was:'Предложенная схема подходит для всех вузов.', now:'Схема проверена на двух кафедрах. Для других вузов нужна отдельная оценка.' } }
         ] } },
-    { id:'ЖН-2026-0131', mine:false, author:'Иманалиева С. Ж.', title:'Байесовская оценка урожайности зерновых в Чуйской долине', type:'Статья', udk:'519.2', version:3, status:'approved', updated:'2026-11-16', deadline:null, reviewers:['r4'], check:okCheck('ЖН-2026-0131','519.2'), review:null },
-    { id:'ЖН-2026-0120', mine:false, author:'Абдыкадыров М. Н.', title:'Учёт лабораторного оборудования по QR-кодам', type:'Статья', udk:'004.9', version:2, status:'doi', updated:'2026-11-14', deadline:null, reviewers:['r2','r3'], doi:'10.xxxxx/jn.2026.0120', issue:'№ 4, 2026, том 12', check:okCheck('ЖН-2026-0120','004.9'), review:null },
-    { id:'ЖН-2026-0158', mine:false, author:'Жумабаева А. К.', title:'Оценка читаемости учебных текстов на кыргызском языке', type:'Диссертация', udk:'004.8', version:1, status:'review', updated:'2026-11-20', deadline:null, reviewers:[], check:okCheck('ЖН-2026-0158','004.8'), review:null }
+    { id:'2026-UDK519-0131', mine:false, author:'Иманалиева С. Ж.', title:'Байесовская оценка урожайности зерновых в Чуйской долине', type:'Статья', udk:'519.2', version:3, status:'approved', updated:'2026-11-16', deadline:null, reviewers:['r4'], check:okCheck('2026-UDK519-0131','519.2'), review:null },
+    { id:'2026-UDK004-0120', mine:false, author:'Абдыкадыров М. Н.', title:'Учёт лабораторного оборудования по QR-кодам', type:'Статья', udk:'004.9', version:2, status:'doi', updated:'2026-11-14', deadline:null, reviewers:['r2','r3'], doi:'10.xxxxx/jn.2026.0120', issue:'№ 4, 2026, том 12', check:okCheck('2026-UDK004-0120','004.9'), review:null },
+    { id:'2026-UDK004-0158', mine:false, author:'Жумабаева А. К.', title:'Оценка читаемости учебных текстов на кыргызском языке', type:'Диссертация', udk:'004.8', version:1, status:'review', updated:'2026-11-20', deadline:null, reviewers:[], check:okCheck('2026-UDK004-0158','004.8'), review:null }
   ],
   inv:[
-    { id:1, r:'r1', code:'ЖН-2026-0147', n:1, date:'2026-11-19', sum:RATE, st:'wait' },
-    { id:2, r:'r1', code:'ЖН-2026-0147', n:2, date:'2026-11-19', sum:RATE, st:'wait' },
-    { id:3, r:'r1', code:'ЖН-2026-0147', n:3, date:'2026-11-19', sum:RATE, st:'wait' },
-    { id:4, r:'r1', code:'ЖН-2026-0139', n:1, date:'2026-11-03', sum:RATE, st:'paid' },
-    { id:5, r:'r1', code:'ЖН-2026-0139', n:2, date:'2026-11-03', sum:RATE, st:'paid' },
-    { id:6, r:'r1', code:'ЖН-2025-0412', n:1, date:'2026-10-14', sum:RATE, st:'paid' },
-    { id:7, r:'r4', code:'ЖН-2026-0131', n:1, date:'2026-11-10', sum:RATE, st:'wait' },
-    { id:8, r:'r4', code:'ЖН-2026-0131', n:2, date:'2026-11-10', sum:RATE, st:'wait' },
-    { id:9, r:'r2', code:'ЖН-2026-0120', n:1, date:'2026-10-28', sum:RATE, st:'paid' }
+    { id:1, r:'r1', code:'2026-UDK004-0147', n:1, date:'2026-11-19', sum:RATE, st:'wait' },
+    { id:2, r:'r1', code:'2026-UDK004-0147', n:2, date:'2026-11-19', sum:RATE, st:'wait' },
+    { id:3, r:'r1', code:'2026-UDK004-0147', n:3, date:'2026-11-19', sum:RATE, st:'wait' },
+    { id:4, r:'r1', code:'2026-UDK004-0139', n:1, date:'2026-11-03', sum:RATE, st:'paid' },
+    { id:5, r:'r1', code:'2026-UDK004-0139', n:2, date:'2026-11-03', sum:RATE, st:'paid' },
+    { id:6, r:'r1', code:'2025-UDK004-0412', n:1, date:'2026-10-14', sum:RATE, st:'paid' },
+    { id:7, r:'r4', code:'2026-UDK519-0131', n:1, date:'2026-11-10', sum:RATE, st:'wait' },
+    { id:8, r:'r4', code:'2026-UDK519-0131', n:2, date:'2026-11-10', sum:RATE, st:'wait' },
+    { id:9, r:'r2', code:'2026-UDK004-0120', n:1, date:'2026-10-28', sum:RATE, st:'paid' }
   ],
   notes:{
     author:[
-      { t:'Получены замечания Рецензента №1 по ЖН-2026-0147', d:'вчера, 16:05', unread:true, link:{v:'card', id:'ЖН-2026-0147'} },
-      { t:'ЖН-2026-0114: автопроверка нашла 4 пункта для исправления', d:'17.11.2026, 11:20', unread:true, link:{v:'report', id:'ЖН-2026-0114'} },
-      { t:'ЖН-2025-0412 отправлена в печать, DOI присвоен', d:'12.11.2026, 09:40', unread:false, link:{v:'card', id:'ЖН-2025-0412'} }
+      { t:'Получены замечания Рецензента №1 по 2026-UDK004-0147', d:'вчера, 16:05', unread:true, link:{v:'card', id:'2026-UDK004-0147'} },
+      { t:'2026-UDK004-0114: автопроверка нашла 4 пункта для исправления', d:'17.11.2026, 11:20', unread:true, link:{v:'report', id:'2026-UDK004-0114'} },
+      { t:'2025-UDK004-0412 отправлена в печать, DOI присвоен', d:'12.11.2026, 09:40', unread:false, link:{v:'card', id:'2025-UDK004-0412'} }
     ],
     reviewer:[
-      { t:'Автор загрузил исправления по ЖН-2026-0139. Вам отправлено SMS', d:'сегодня, 08:12', unread:true, link:{v:'recheck', id:'ЖН-2026-0139'} },
-      { t:'Новая работа по УДК 004.8: ЖН-2026-0152', d:'18.11.2026, 14:30', unread:true, link:{v:'review', id:'ЖН-2026-0152'} },
-      { t:'Счёт по ЖН-2026-0139 оплачен', d:'05.11.2026, 10:00', unread:false, link:{v:'invoices'} }
+      { t:'Автор загрузил исправления по 2026-UDK004-0139. Вам отправлено SMS', d:'сегодня, 08:12', unread:true, link:{v:'recheck', id:'2026-UDK004-0139'} },
+      { t:'Новая работа по УДК 004.8: 2026-UDK004-0152', d:'18.11.2026, 14:30', unread:true, link:{v:'review', id:'2026-UDK004-0152'} },
+      { t:'Счёт по 2026-UDK004-0139 оплачен', d:'05.11.2026, 10:00', unread:false, link:{v:'invoices'} }
     ],
     editor:[
-      { t:'ЖН-2026-0158 прошла автопроверку и ждёт назначения рецензентов', d:'сегодня, 09:55', unread:true, link:{v:'panel'} },
-      { t:'ЖН-2026-0131 одобрена рецензентом, можно присвоить DOI', d:'16.11.2026, 17:10', unread:true, link:{v:'doi'} },
+      { t:'2026-UDK004-0158 прошла автопроверку и ждёт назначения рецензентов', d:'сегодня, 09:55', unread:true, link:{v:'panel'} },
+      { t:'2026-UDK519-0131 одобрена рецензентом, можно присвоить DOI', d:'16.11.2026, 17:10', unread:true, link:{v:'doi'} },
       { t:'Новые счета рецензентов: 5 строк ожидают подтверждения', d:'19.11.2026, 18:00', unread:false, link:{v:'einv'} }
     ]
   }
@@ -687,7 +688,7 @@ const revNo = (w, r) => w.reviewers.indexOf(r) + 1;
 const load = r => S.works.filter(w => w.reviewers.includes(r) && ['review','remarks','recheck'].includes(w.status)).length;
 const chip = s => `<span class="chip ${ST_CLS[s]}">${ST[s]}</span>`;
 function notify(role, t, link){ S.notes[role].unshift({ t, d:'только что', unread:true, link }); }
-function nextCode(){ const c = 'ЖН-2026-' + String(S.seq).padStart(4, '0'); S.seq++; return c; }
+function nextCode(){ const c = '2026-UDK' + ((S.wiz.udk || '0').match(/\d+/)[0]).padStart(3, '0') + '-' + String(S.seq).padStart(4, '0'); S.seq++; return c; }
 
 /* ---------- wizard ---------- */
 function newWiz(){ return { step:0, reached:0, type:'Статья', lang:'ru', textLang:'ru', meta:{ ru:{title:'',abs:'',kw:[]}, kg:{title:'',abs:'',kw:[]}, en:{title:'',abs:'',kw:[]} }, udk:'', udkq:'', file:null, fileErr:'', running:false, err:'', draftId:null }; }
@@ -1095,7 +1096,12 @@ function vRecheck(){
   const ro = w.status !== 'recheck';
   return `${backBtn('recheck','Повторная проверка')}
   <div class="page-head"><div><h1>Повторная проверка</h1><p class="rhead"><span class="code">${w.id}</span><span>${esc(w.title)}</span><span>версия ${w.version}</span></p></div>${ro ? chip(w.status) : ''}</div>
-  <div class="stack">${rm.map((r, i) => `<div class="remark"><div class="remark__head"><span class="remark__n">Замечание ${r.n}</span><span class="remark__sum">${som(r.sum)}</span></div>
+  <div class="stack">
+  <section class="stack-s" aria-label="Файлы работы"><span class="label">Исправленный документ</span>
+    <div class="file"><span class="file__ico">DOCX</span><div><span class="file__name">${w.id}_v${w.version}.docx</span><span class="file__meta">Новая версия от автора · ${fmt(w.updated)} · имя автора скрыто</span></div><button type="button" class="btn btn--primary btn--sm" data-act="dlFile" data-f="${w.id}_v${w.version}.docx">${icon('download')}Скачать</button></div>
+    ${w.version > 1 ? `<div class="file"><span class="file__ico">DOCX</span><div><span class="file__name">${w.id}_v${w.version - 1}.docx</span><span class="file__meta">Версия, которую вы рецензировали</span></div><button type="button" class="btn btn--ghost btn--sm" data-act="dlFile" data-f="${w.id}_v${w.version - 1}.docx">${icon('download')}Скачать</button></div>` : ''}
+    <p class="help">Ниже — ответы автора на каждое замечание и изменённые фрагменты. Сверьте их с файлом и отметьте результат.</p></section>
+  ${rm.map((r, i) => `<div class="remark"><div class="remark__head"><span class="remark__n">Замечание ${r.n}</span><span class="remark__sum">${som(r.sum)}</span></div>
     <p>${esc(r.text)}</p>
     <div class="panel stack-s"><span class="label">Ответ автора</span><p style="font-size:15px">${esc(r.resp || 'Ответа нет')}</p>
       ${r.diff ? `<div class="diff"><div class="diff__row"><span class="label">Было</span><span class="diff__was"><s>${esc(r.diff.was)}</s></span></div><div class="diff__row"><span class="label">Стало</span><span><span class="hl">${esc(r.diff.now)}</span></span></div></div>` : ''}</div>
@@ -1190,7 +1196,7 @@ function hbars(rows, label){
 }
 function vAnalytics(){
   const years = [['2021',38],['2022',51],['2023',64],['2024',79],['2025',93],['2026',71]];
-  const top = [['Эрозия почв предгорий Таласского хребта',27,'ЖН-2023-0211'],['Цифровая грамотность студентов первого курса',22,'ЖН-2024-0058'],['Хранение данных научных журналов в облаке',17,'ЖН-2025-0412'],['Модели спроса на электроэнергию в Бишкеке',15,'ЖН-2023-0187'],['Корпусная разметка лексики кыргызского эпоса',12,'ЖН-2024-0133']];
+  const top = [['Эрозия почв предгорий Таласского хребта',27,'2023-UDK631-0211'],['Цифровая грамотность студентов первого курса',22,'2024-UDK378-0058'],['Хранение данных научных журналов в облаке',17,'2025-UDK004-0412'],['Модели спроса на электроэнергию в Бишкеке',15,'2023-UDK330-0187'],['Корпусная разметка лексики кыргызского эпоса',12,'2024-UDK811-0133']];
   const udk = [['004 Информатика',112],['63 Сельское хозяйство',86],['33 Экономика',66],['37 Образование',57],['51 Математика',41],['55 Науки о Земле',34]];
   return `<div class="page-head"><div><h1>Аналитика цитирований</h1><p class="sub">Пример данных. После подключения источника цифры будут обновляться автоматически.</p></div></div>
   <div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="stat"><span class="stat__v">396</span><span class="stat__t">Цитирований за 2021–2026</span></div><div class="stat"><span class="stat__v">71</span><span class="stat__t">За 2026 год, на 20 ноября</span></div><div class="stat"><span class="stat__v">27</span><span class="stat__t">Максимум у одной статьи</span></div></div>
@@ -1222,6 +1228,7 @@ document.addEventListener('click', e => {
   switch (a){
     case 'role': S.role = d.role; setNotif(false); render(true); break;
     case 'nav': if (d.v === 'new' && S.wiz.running) break; go(d.v); break;
+    case 'dlFile': toast(`Скачивание ${d.f} — обезличенная копия без имени автора`); break;
     case 'open': go(d.v, d.id); break;
     case 'filter': S.filter = d.f; refresh(`[data-act="filter"][data-f="${d.f}"]`); break;
     case 'rfilter': S.rfilter = d.f; refresh(`[data-act="rfilter"][data-f="${d.f}"]`); break;
@@ -1353,6 +1360,7 @@ document.addEventListener('dragover', e => { const dz = e.target.closest && e.ta
 document.addEventListener('dragleave', e => { const dz = e.target.closest && e.target.closest('#drop'); if (dz) dz.classList.remove('over'); });
 document.addEventListener('drop', e => { const dz = e.target.closest && e.target.closest('#drop'); if (dz){ e.preventDefault(); dz.classList.remove('over'); handleFile(e.dataTransfer.files[0]); } });
 
+if (location.hash === '#new') S.view.author = 'new';  // переход с главной после входа
 render(false);
 })();
 </script>
